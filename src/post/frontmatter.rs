@@ -5,11 +5,11 @@ use serde::Deserialize;
 
 use super::ParseError;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct Frontmatter<'src> {
-    title: &'src str,
-    datetime: DateTime<FixedOffset>,
-    tags: Vec<&'src str>,
+    pub title: &'src str,
+    pub datetime: DateTime<FixedOffset>,
+    pub tags: Vec<&'src str>,
 }
 
 impl<'src> Frontmatter<'src> {

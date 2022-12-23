@@ -6,13 +6,17 @@ use self::frontmatter::Frontmatter;
 
 pub mod frontmatter;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Post<'src> {
-    front_matter: Frontmatter<'src>,
-    content: String,
+    /// The path of the source file
+    pub path: PathBuf,
+    /// The frontmatter for this post, contains metadata
+    pub front_matter: Frontmatter<'src>,
+    /// The main content of the post, rendered as html
+    pub content: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ParseError {
     /// The path of the file in which the error occurred
     pub path: PathBuf,
@@ -38,6 +42,7 @@ impl<'src> Post<'src> {
         html::push_html(&mut content, parser);
 
         Ok(Self {
+            path: path.to_path_buf(),
             front_matter,
             content,
         })
@@ -45,13 +50,26 @@ impl<'src> Post<'src> {
 }
 
 #[test]
-fn test() {
+fn parse_markdown_post() {
+    use chrono::DateTime;
     let test = r#"---
-title: Cooking
+title: My Favourite Recipe
 datetime: 2022-12-23T02:58:04.390Z
 tags:
 ---
-egg"#;
-    let test = Post::from_str(test, &Path::new("test"));
-    dbg!(test);
+**egg**"#;
+    let path = Path::new("test").to_path_buf();
+    let test = Post::from_str(test, &path);
+    assert_eq!(
+        test,
+        Ok(Post {
+            path,
+            front_matter: Frontmatter {
+                title: "My Favourite Recipe",
+                datetime: DateTime::parse_from_rfc3339("2022-12-23T02:58:04.390Z").unwrap(),
+                tags: Vec::new()
+            },
+            content: "<p><strong>egg</strong></p>\n".to_string()
+        })
+    );
 }
