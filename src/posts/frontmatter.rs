@@ -9,6 +9,8 @@ use super::post::ParseError;
 pub struct Frontmatter {
     pub title: String,
     pub datetime: DateTime<FixedOffset>,
+    // According to RFC 5646 (i.e. the `lang` attribute of the `html` tag)
+    pub language: String,
     pub tags: Vec<String>,
 }
 

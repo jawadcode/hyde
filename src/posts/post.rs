@@ -49,7 +49,6 @@ impl Post {
             info: "Missing frontmatter terminator".to_string(),
         })?;
         let content = parse_content(content_markdown);
-
         Ok(Self {
             path,
             front_matter,
@@ -64,6 +63,7 @@ fn parse_markdown_post() {
     let test = r#"---
 title: My Favourite Recipe
 datetime: 2022-12-23T02:58:04.390Z
+language: en-GB
 tags:
 ---
 **egg**"#;
@@ -76,6 +76,7 @@ tags:
             front_matter: Frontmatter {
                 title: "My Favourite Recipe".to_string(),
                 datetime: DateTime::parse_from_rfc3339("2022-12-23T02:58:04.390Z").unwrap(),
+                language: "en-GB".to_string(),
                 tags: Vec::new()
             },
             content: "<p><strong>egg</strong></p>\n".to_string()
