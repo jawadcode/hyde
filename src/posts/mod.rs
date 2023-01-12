@@ -1,4 +1,5 @@
 use std::{
+    error::Error,
     ffi::OsStr,
     fmt::{self, Display},
     fs, io,
@@ -29,6 +30,8 @@ impl Display for GetPostsError {
         }
     }
 }
+
+impl Error for GetPostsError {}
 
 pub fn get_posts() -> Result<Vec<Post>, GetPostsError> {
     let entries = fs::read_dir("./posts").map_err(GetPostsError::ReadDir)?;

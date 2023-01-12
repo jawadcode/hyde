@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+    <title>{{ front_matter.title }}</title>
+  </head>
+  <body lang="{{ front_matter.language }}">
+    <h1 class="post-header">{{ front_matter.title }}</h1>
+    <h5 class="post-timestamp">{{ front_matter.datetime | default_datetime }}</h5>
+    {{ content }}
+  </body>
+</html>
