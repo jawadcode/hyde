@@ -10,7 +10,6 @@ use crate::{
 pub struct Theme {
     index: String,
     post: String,
-    
 }
 
 pub fn build(path: PathBuf) -> anyhow::Result<()> {
@@ -39,6 +38,5 @@ pub fn build(path: PathBuf) -> anyhow::Result<()> {
 }
 
 fn read_theme(path: PathBuf) -> anyhow::Result<()> {
-    fs::copy
     Ok(())
 }
