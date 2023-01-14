@@ -5,9 +5,12 @@ use std::{
 
 use super::{content::parse_content, frontmatter::Frontmatter};
 
-#[derive(Debug, Clone, PartialEq)]
+use serde::Serialize;
+
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Post {
     /// The path of the source file
+    #[serde(skip_serializing)]
     pub path: PathBuf,
     /// The frontmatter for this post, contains metadata
     pub front_matter: Frontmatter,

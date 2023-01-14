@@ -25,4 +25,4 @@ tree-sitter-c = "0.20"
 tree-sitter-cpp = "0.20"
 tree-sitter-rust = "0.20"
 tree-sitter-toml = "0.20"
-upon = "0.6"
+upon = { version = "0.6", default-features = false, features = ["serde", "filters"] }

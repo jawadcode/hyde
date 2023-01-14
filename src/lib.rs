@@ -1,13 +1,13 @@
 use std::path::PathBuf;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub mod build;
 pub mod new;
 pub mod posts;
 pub mod serve;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Config {
     pub name: String,
     pub description: String,

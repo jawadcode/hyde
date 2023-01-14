@@ -1,0 +1,3 @@
+name = "example"
+description = "An Example Blog"
+theme = "default_theme"
