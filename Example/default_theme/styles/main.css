@@ -1,0 +1,45 @@
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Fira Code";
+  src: url("../fonts/Fira-Code.ttf");
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-colour: #181818;
+  --bg-colour-darker: #101010;
+  --fg-colour: #DCDCDC;
+  --fg-colour-bold: #F8F8F8;
+  --box-shadow: #000000;
+}
+
+[data-theme="light"] {
+  --bg-colour: #F0F0F0;
+  --bg-colour-darker: #E8E8E8;
+  --fg-colour: #202020;
+  --fg-colour-bold: #101010;
+  --box-shadow: #CCCCCC;
+}
+
+body {
+  width: 60rem;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-family: "Inter";
+  font-size: 1.1rem;
+  color: var(--fg-colour);
+  background-color: var(--bg-colour);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--fg-colour-bold);
+}

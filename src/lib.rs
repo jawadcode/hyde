@@ -1,3 +1,6 @@
+#![feature(round_char_boundary)]
+#![feature(iterator_try_collect)]
+
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};

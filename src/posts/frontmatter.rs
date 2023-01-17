@@ -25,9 +25,9 @@ impl FilterArg for DT {
 
 impl Frontmatter {
     /// Parse the `front_matter` as YAML
-    pub(super) fn from_str(front_matter: &str, path: &Path) -> Result<Self, ParseError> {
+    pub(super) fn from_str(front_matter: &str, path: impl AsRef<Path>) -> Result<Self, ParseError> {
         serde_yaml::from_str(front_matter).map_err(|err| ParseError {
-            path: path.to_path_buf(),
+            path: path.as_ref().to_path_buf(),
             info: err.to_string(),
         })
     }

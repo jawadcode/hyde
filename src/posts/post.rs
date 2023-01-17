@@ -1,10 +1,18 @@
 use std::{
+    error::Error,
     fmt::{self, Display},
-    path::PathBuf,
+    fs,
+    path::{Path, PathBuf},
 };
 
-use super::{content::parse_content, frontmatter::Frontmatter};
+use crate::Config;
 
+use super::{
+    content::{parse_content, summarise_content},
+    frontmatter::Frontmatter,
+};
+
+use anyhow::Context;
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -37,52 +45,111 @@ impl Display for ParseError {
     }
 }
 
+impl Error for ParseError {}
+
+#[derive(Serialize)]
+pub struct PostInfo<'a> {
+    #[serde(flatten)]
+    post: &'a Post,
+    config: &'a Config,
+}
+
 impl Post {
     /// Parse a post, made up of the frontmatter and content
-    pub fn from_str(source: &str, path: PathBuf) -> Result<Self, ParseError> {
-        let mut sections = source.split("---");
+    pub fn from_path(path: impl AsRef<Path>) -> Result<Self, ParseError> {
+        let source = fs::read_to_string(&path).map_err(|err| ParseError {
+            path: path.as_ref().to_path_buf(),
+            info: format!("Failed to read '{}': {err}", path.as_ref().display()),
+        })?;
+        let mut sections = source.splitn(3, "---");
         let front_matter_text = sections.nth(1).ok_or_else(|| ParseError {
-            path: path.clone(),
+            path: path.as_ref().to_path_buf(),
             info: "Missing frontmatter".to_string(),
         })?;
         let front_matter = Frontmatter::from_str(front_matter_text, &path)?;
 
         let content_markdown = sections.next().ok_or_else(|| ParseError {
-            path: path.clone(),
+            path: path.as_ref().to_path_buf(),
             info: "Missing frontmatter terminator".to_string(),
         })?;
         let content = parse_content(content_markdown);
+
         Ok(Self {
-            path,
+            path: path.as_ref().to_path_buf(),
             front_matter,
             content,
         })
     }
+
+    /// Render a post using a `upon::Template`, returns the dest path and the content
+    pub fn render(
+        &self,
+        config: &Config,
+        posts_dest: impl AsRef<Path>,
+        template: &upon::Template,
+    ) -> anyhow::Result<(PathBuf, String)> {
+        let post = self;
+        let post_filename = post
+            .path
+            .file_stem()
+            .expect("file should have a stem")
+            .to_string_lossy()
+            .into_owned()
+            + ".html";
+        let html = template
+            .render(PostInfo { post, config })
+            .with_context(|| format!("Failed to render post '{}'", post.path.display()))?;
+        let dest = posts_dest.as_ref().join(post_filename);
+        Ok((dest, html))
+    }
 }
 
-#[test]
-fn parse_markdown_post() {
-    use chrono::DateTime;
-    let test = r#"---
-title: My Favourite Recipe
-datetime: 2022-12-23T02:58:04.390Z
-language: en-GB
-tags:
----
-**egg**"#;
-    let path = PathBuf::from("test");
-    let test = Post::from_str(test, path.clone());
-    assert_eq!(
-        test,
-        Ok(Post {
-            path,
-            front_matter: Frontmatter {
-                title: "My Favourite Recipe".to_string(),
-                datetime: DateTime::parse_from_rfc3339("2022-12-23T02:58:04.390Z").unwrap(),
-                language: "en-GB".to_string(),
-                tags: Vec::new()
-            },
-            content: "<p><strong>egg</strong></p>\n".to_string()
+#[derive(Serialize)]
+pub struct RecentPost {
+    url: String,
+    #[serde(flatten)]
+    pub frontmatter: Frontmatter,
+    summary: String,
+}
+
+impl RecentPost {
+    /// Returns the post at the path, with an empty summary
+    pub fn from_path(path: impl AsRef<Path>, proj_dir: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let url = PathBuf::from(".")
+            .join(
+                pathdiff::diff_paths(path.as_ref().canonicalize()?, &proj_dir).with_context(
+                    || {
+                        format!(
+                            "Failed to pathdiff '{}' with '{}'",
+                            path.as_ref().display(),
+                            proj_dir.as_ref().display()
+                        )
+                    },
+                )?,
+            )
+            .to_string_lossy()
+            .to_string();
+        let source = fs::read_to_string(&path).map_err(|err| ParseError {
+            path: path.as_ref().to_path_buf(),
+            info: format!("Failed to read '{}': {err}", path.as_ref().display()),
+        })?;
+        let mut sections = source.splitn(3, "---");
+        let front_matter_text = sections.nth(1).ok_or_else(|| ParseError {
+            path: path.as_ref().to_path_buf(),
+            info: "Missing frontmatter".to_string(),
+        })?;
+        let frontmatter = Frontmatter::from_str(front_matter_text, &path)?;
+
+        let content_markdown = sections.next().ok_or_else(|| ParseError {
+            path: path.as_ref().to_path_buf(),
+            info: "Missing frontmatter terminator".to_string(),
+        })?;
+        let summary = summarise_content(content_markdown);
+
+        Ok(Self {
+            url,
+            frontmatter,
+            summary,
         })
-    );
+    }
 }
