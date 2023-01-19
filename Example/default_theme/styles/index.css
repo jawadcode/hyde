@@ -1,4 +1,35 @@
-.recent_post > h1, h2, h3, h4, h5 {
-  font-size: 1rem;
-  font-weight: bold;
+.blog-description { font-style: italic }
+
+.recent-posts {
+  margin-bottom: 6rem;
+}
+
+.recent-posts, .recent-post {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.recent-post {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+  background-color: var(--secondary-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 5px var(--box-shadow);
+}
+
+.recent-post-title,
+.recent-post-timestamp,
+.recent-post-summary {
+  margin: 0;
+}
+
+@media only screen and (max-width: 975px) {
+  body {
+    margin: 0 1rem;
+    font-size: 1rem;
+  }
+  .recent-post { padding: 0.75rem }
 }

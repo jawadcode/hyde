@@ -115,17 +115,26 @@ pub struct RecentPost {
 impl RecentPost {
     /// Returns the post at the path, with an empty summary
     pub fn from_path(path: impl AsRef<Path>, proj_dir: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let filename = path
+            .as_ref()
+            .file_stem()
+            .expect("should have a filename")
+            .to_string_lossy()
+            .to_string()
+            + ".html";
         let url = PathBuf::from(".")
             .join(
-                pathdiff::diff_paths(path.as_ref().canonicalize()?, &proj_dir).with_context(
-                    || {
-                        format!(
-                            "Failed to pathdiff '{}' with '{}'",
-                            path.as_ref().display(),
-                            proj_dir.as_ref().display()
-                        )
-                    },
-                )?,
+                pathdiff::diff_paths(
+                    proj_dir.as_ref().join("static/posts").join(filename),
+                    &proj_dir,
+                )
+                .with_context(|| {
+                    format!(
+                        "Failed to pathdiff '{}' with '{}'",
+                        path.as_ref().display(),
+                        proj_dir.as_ref().display()
+                    )
+                })?,
             )
             .to_string_lossy()
             .to_string();

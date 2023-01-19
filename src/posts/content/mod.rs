@@ -47,7 +47,10 @@ pub(super) fn summarise_content(content_markdown: &str) -> String {
                 end_tag(&tag, &mut buffer, &tags_stack);
             }
             Event::Text(content) => {
-                if !tags_stack.iter().any(is_strikethrough) {
+                if !tags_stack
+                    .iter()
+                    .any(|tag| matches!(tag, Tag::Strikethrough))
+                {
                     buffer.push_str(&content)
                 }
             }
@@ -59,9 +62,9 @@ pub(super) fn summarise_content(content_markdown: &str) -> String {
     buffer.trim().to_string()
 }
 
-fn start_tag(tag: &Tag, buffer: &mut String, tags_stack: &mut Vec<Tag>) {
+fn start_tag(tag: &Tag, buffer: &mut String, tags_stack: &mut [Tag]) {
     match tag {
-        Tag::Link(_, _, title) | Tag::Image(_, _, title) => buffer.push_str(&title),
+        Tag::Link(_, _, title) | Tag::Image(_, _, title) => buffer.push_str(title),
         Tag::Item => {
             buffer.push(' ');
             let mut lists_stack = tags_stack
@@ -92,26 +95,16 @@ fn end_tag(tag: &Tag, buffer: &mut String, tags_stack: &[Tag]) {
     match tag {
         Tag::Paragraph | Tag::Heading(..) => buffer.push(' '),
         Tag::CodeBlock(_) => {
-            if buffer.chars().last() != Some(' ') {
+            if buffer.ends_with(' ') {
                 buffer.push(' ');
             }
         }
         Tag::List(_) => {
-            let is_sublist = tags_stack.iter().any(|tag| match tag {
-                Tag::List(_) => true,
-                _ => false,
-            });
+            let is_sublist = tags_stack.iter().any(|tag| matches!(tag, Tag::List(_)));
             if !is_sublist {
                 buffer.push(' ')
             }
         }
         _ => (),
-    }
-}
-
-fn is_strikethrough(tag: &Tag) -> bool {
-    match tag {
-        Tag::Strikethrough => true,
-        _ => false,
     }
 }

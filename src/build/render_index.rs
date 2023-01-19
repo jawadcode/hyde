@@ -24,7 +24,9 @@ pub(super) fn render_index(config: &Config, proj_dir: impl AsRef<Path>) -> anyho
         .filter_map(Result::ok)
         .map(|entry| RecentPost::from_path(entry.path(), &proj_dir))
         .try_collect()?;
-    recent_posts.sort_unstable_by(|a, b| a.frontmatter.datetime.cmp(&b.frontmatter.datetime));
+    recent_posts.sort_unstable_by(|post1, post2| {
+        post1.frontmatter.datetime.cmp(&post2.frontmatter.datetime)
+    });
     recent_posts = recent_posts.into_iter().rev().take(5).collect();
 
     let index_html_path = config.theme.join("index.html");
@@ -34,6 +36,10 @@ pub(super) fn render_index(config: &Config, proj_dir: impl AsRef<Path>) -> anyho
     engine
         .add_template("index", index_html)
         .with_context(|| "Failed to add 'index.html' template")?;
+    engine.add_filter("trunc", |text: String, len: usize| {
+        let index = text.ceil_char_boundary(len);
+        text[0..index].to_string() + "..."
+    });
     let template = engine.get_template("index").unwrap();
 
     let dest_index_html = File::create(proj_dir.as_ref().join("static/index.html"))
