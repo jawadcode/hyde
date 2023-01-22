@@ -27,6 +27,7 @@ pub(super) fn render_index(config: &Config, proj_dir: impl AsRef<Path>) -> anyho
     recent_posts.sort_unstable_by(|post1, post2| {
         post1.frontmatter.datetime.cmp(&post2.frontmatter.datetime)
     });
+    // TODO: Modify `RecentPost` and `IndexTemplate` such that we render the summaries for only the 5 most recent posts
     recent_posts = recent_posts.into_iter().rev().take(5).collect();
 
     let index_html_path = config.theme.join("index.html");
