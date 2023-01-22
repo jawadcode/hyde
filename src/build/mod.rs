@@ -1,7 +1,11 @@
 mod render_index;
 mod render_posts;
 
-use std::{ffi::OsStr, fs, path::Path};
+use std::{
+    ffi::OsStr,
+    fs::{self, DirEntry, Metadata},
+    path::Path,
+};
 
 use anyhow::{bail, Context};
 
@@ -15,7 +19,7 @@ pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
             .with_context(|| "Failed to read metadata of 'hyde.toml'")?
             .is_file()
     {
-        bail!("Missing 'hyde.toml'");
+        bail!("The current directory is not a Hyde project (missing 'hyde.toml')");
     }
     let hyde_toml =
         fs::read_to_string(hyde_toml_path).with_context(|| "Failed to read 'hyde.toml'")?;
@@ -34,8 +38,12 @@ pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     )
     .with_context(|| "Failed to copy over theme files")?;
     // Render markdown posts in 'posts/' to 'static/posts/' as html
-    render_posts(&config, proj_dir.as_ref().join("posts"))
+    render_posts(&config, proj_dir.as_ref().join("posts"), &proj_dir)
         .with_context(|| "Failed to render markdown posts")?;
+    println!(
+        "\x1b[32;1mSuccess\x1b[0m: Generated static site for project '{}'",
+        config.name
+    );
     Ok(())
 }
 
@@ -65,21 +73,35 @@ fn copy_dir(
             format!("Failed to access metadata of '{}'", entry.path().display())
         })?;
         let dest = dest.as_ref().join(entry.file_name());
-        let dest_metadata = dest
-            .metadata()
-            .with_context(|| format!("Failed to access metadata of '{}'", dest.display()))?;
-        if entry_metadata.modified()? > dest_metadata.modified()? {
-            if entry_metadata.is_file() {
-                fs::copy(entry.path(), dest)?;
-            } else if entry_metadata.is_dir() {
-                copy_dir(entry.path(), dest, &[])?;
-            } else {
-                bail!(
-                    "Failed to copy entry '{}' as it is not a file or directory",
-                    entry.path().display()
-                );
+        if dest.exists() {
+            let dest_metadata = dest
+                .metadata()
+                .with_context(|| format!("Failed to access metadata of '{}'", dest.display()))?;
+            if entry_metadata.modified()? > dest_metadata.modified()? {
+                dbg!(entry.path());
+                copy_entry(entry, entry_metadata, dest)?;
             }
+        } else {
+            copy_entry(entry, entry_metadata, dest)?;
         }
+    }
+    Ok(())
+}
+
+fn copy_entry(
+    entry: DirEntry,
+    entry_metadata: Metadata,
+    dest: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    if entry_metadata.is_file() {
+        fs::copy(entry.path(), dest)?;
+    } else if entry_metadata.is_dir() {
+        copy_dir(entry.path(), dest, &[])?;
+    } else {
+        bail!(
+            "Failed to copy entry '{}' as it is not a file or directory",
+            entry.path().display()
+        );
     }
     Ok(())
 }

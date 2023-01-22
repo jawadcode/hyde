@@ -22,7 +22,7 @@ pub(super) fn render_index(config: &Config, proj_dir: impl AsRef<Path>) -> anyho
         .read_dir()
         .with_context(|| "Failed to read 'posts/' dir")?
         .filter_map(Result::ok)
-        .map(|entry| RecentPost::from_path(entry.path(), &proj_dir))
+        .map(|entry| RecentPost::from_path(entry.path()))
         .try_collect()?;
     recent_posts.sort_unstable_by(|post1, post2| {
         post1.frontmatter.datetime.cmp(&post2.frontmatter.datetime)

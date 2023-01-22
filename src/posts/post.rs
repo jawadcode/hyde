@@ -1,7 +1,7 @@
 use std::{
     error::Error,
     fmt::{self, Display},
-    fs,
+    fs::{self, File},
     path::{Path, PathBuf},
 };
 
@@ -14,6 +14,7 @@ use super::{
 
 use anyhow::Context;
 use serde::Serialize;
+use upon::TemplateRef;
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Post {
@@ -81,26 +82,19 @@ impl Post {
         })
     }
 
-    /// Render a post using a `upon::Template`, returns the dest path and the content
+    /// Render a post to its destination using an `upon::TemplateRef`
     pub fn render(
         &self,
         config: &Config,
-        posts_dest: impl AsRef<Path>,
-        template: &upon::Template,
-    ) -> anyhow::Result<(PathBuf, String)> {
+        post_dest: impl AsRef<Path>,
+        template: TemplateRef,
+    ) -> anyhow::Result<()> {
         let post = self;
-        let post_filename = post
-            .path
-            .file_stem()
-            .expect("file should have a stem")
-            .to_string_lossy()
-            .into_owned()
-            + ".html";
-        let html = template
-            .render(PostInfo { post, config })
-            .with_context(|| format!("Failed to render post '{}'", post.path.display()))?;
-        let dest = posts_dest.as_ref().join(post_filename);
-        Ok((dest, html))
+        let writer = File::create(&post_dest)
+            .with_context(|| format!("Failed to create file '{}'", post_dest.as_ref().display()))?;
+        template
+            .render_to_writer(writer, PostInfo { post, config })
+            .with_context(|| format!("Failed to render post '{}'", post.path.display()))
     }
 }
 
@@ -114,7 +108,7 @@ pub struct RecentPost {
 
 impl RecentPost {
     /// Returns the post at the path, with an empty summary
-    pub fn from_path(path: impl AsRef<Path>, proj_dir: impl AsRef<Path>) -> anyhow::Result<Self> {
+    pub fn from_path(path: impl AsRef<Path>) -> anyhow::Result<Self> {
         let filename = path
             .as_ref()
             .file_stem()
@@ -123,19 +117,8 @@ impl RecentPost {
             .to_string()
             + ".html";
         let url = PathBuf::from(".")
-            .join(
-                pathdiff::diff_paths(
-                    proj_dir.as_ref().join("static/posts").join(filename),
-                    &proj_dir,
-                )
-                .with_context(|| {
-                    format!(
-                        "Failed to pathdiff '{}' with '{}'",
-                        path.as_ref().display(),
-                        proj_dir.as_ref().display()
-                    )
-                })?,
-            )
+            .join("posts")
+            .join(filename)
             .to_string_lossy()
             .to_string();
         let source = fs::read_to_string(&path).map_err(|err| ParseError {

@@ -1,5 +1,6 @@
 #![feature(round_char_boundary)]
 #![feature(iterator_try_collect)]
+#![feature(try_blocks)]
 
 use std::path::PathBuf;
 

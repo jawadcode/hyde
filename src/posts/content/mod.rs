@@ -1,4 +1,4 @@
-use pulldown_cmark::{html, CodeBlockKind, Event, Options, Parser, Tag};
+use pulldown_cmark::{html, CodeBlockKind, CowStr, Event, Options, Parser, Tag};
 
 use self::highlight::highlight;
 
@@ -8,6 +8,7 @@ mod highlight;
 pub(super) fn parse_content(content_markdown: &str) -> String {
     let options = Options::all();
     let mut code_block_lang = None;
+    let mut fragment_id = None;
     let parser = Parser::new_ext(content_markdown, options).map(|event| match event {
         Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(ref lang))) => {
             code_block_lang = Some(lang.clone());
@@ -20,6 +21,17 @@ pub(super) fn parse_content(content_markdown: &str) -> String {
             code_block_lang = None;
             event
         }
+        Event::Start(Tag::Heading(_, frag_id, _)) => {
+            fragment_id = frag_id;
+            event
+        }
+        Event::Text(text) if fragment_id.is_some() => {
+            Event::Html(format_heading(fragment_id.unwrap(), text))
+        }
+        Event::End(Tag::Heading(..)) => {
+            fragment_id = None;
+            event
+        }
         event => event,
     });
     let mut html_output = String::new();
@@ -27,7 +39,30 @@ pub(super) fn parse_content(content_markdown: &str) -> String {
     html_output
 }
 
-/* The following code was lazily taken from another MIT licenced project and modified a little to use spaces instead of newlines and tabs */
+fn format_heading<'a>(fragment_id: &'a str, heading: CowStr<'a>) -> CowStr<'a> {
+    let mut html = String::new();
+    html.push_str(r#"<a href=""#);
+    html.push_str(fragment_id);
+    html.push_str(r#"">"#);
+    html.push_str(heading.as_ref());
+    html.push_str(r#"</a>"#);
+    CowStr::from(html)
+}
+
+#[test]
+fn test() {
+    println!(
+        "{}",
+        parse_content(
+            r#"# This is a H1 {#this-is-an-id1}
+## This is a H2 {#this-is-an-id2}
+### This is a H3 {#this-is-an-id3}
+#### This is a H4 {#this-is-an-id4}
+##### This is a H5 {#this-is-an-id5}
+"#,
+        )
+    );
+}
 
 pub(super) fn summarise_content(content_markdown: &str) -> String {
     let parser = Parser::new_ext(content_markdown, Options::ENABLE_STRIKETHROUGH);

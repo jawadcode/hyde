@@ -33,6 +33,27 @@ code {
   color: var(--fg-colour-bold);
 }
 
+table {
+  border-collapse: collapse;
+  box-shadow: 0 0 5px var(--box-shadow);
+}
+
+th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 1.25rem;
+  background-color: var(--accent);
+  color: white;
+}
+
+th:first-child { border-top-left-radius: 1rem }
+th:last-child { border-top-right-radius: 1rem }
+
+td { padding: 0.5rem 1rem }
+
+tr:nth-child(odd) { background-color: var(--secondary-bg) }
+tr:nth-child(even) { background-color: var(--tertiary-bg) }
+
 .attribute { color: #E5C07B }
 .comment { color: #5C6370; font-style: italic }
 .constant { color: #56B6C2 }
