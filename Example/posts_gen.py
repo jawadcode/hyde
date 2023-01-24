@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 from faker import Faker
 from faker.providers import lorem
 from mdgen import MarkdownPostProvider

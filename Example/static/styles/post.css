@@ -36,12 +36,13 @@ code {
 table {
   border-collapse: collapse;
   box-shadow: 0 0 5px var(--box-shadow);
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
 }
 
 th {
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: left;
-  font-size: 1.25rem;
   background-color: var(--accent);
   color: white;
 }
@@ -49,7 +50,7 @@ th {
 th:first-child { border-top-left-radius: 1rem }
 th:last-child { border-top-right-radius: 1rem }
 
-td { padding: 0.5rem 1rem }
+td { padding: 0.25rem 0.75rem }
 
 tr:nth-child(odd) { background-color: var(--secondary-bg) }
 tr:nth-child(even) { background-color: var(--tertiary-bg) }

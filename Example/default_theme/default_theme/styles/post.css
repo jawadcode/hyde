@@ -36,8 +36,6 @@ code {
 table {
   border-collapse: collapse;
   box-shadow: 0 0 5px var(--box-shadow);
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
 }
 
 th {
