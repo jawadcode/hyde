@@ -1,4 +1,5 @@
-mod render_index;
+mod copy_theme;
+mod new_engine;
 mod render_posts;
 
 use std::{
@@ -9,7 +10,9 @@ use std::{
 
 use anyhow::{bail, Context};
 
-use self::{render_index::render_index, render_posts::render_posts};
+use crate::build::new_engine::new_engine;
+
+use self::{copy_theme::copy_theme, render_posts::render_posts};
 
 pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     let hyde_toml_path = proj_dir.as_ref().join("hyde.toml");
@@ -26,20 +29,19 @@ pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     let config = toml::from_str(&hyde_toml).with_context(|| "Failed to parse 'hyde.toml'")?;
     let static_dir = proj_dir.as_ref().join("static");
     fs::create_dir_all(&static_dir).with_context(|| "Failed to create 'static/'")?;
-    render_index(&config, &proj_dir)?;
+
+    let engine = new_engine(&config)?;
+    copy_theme(&config, &proj_dir, &engine)?;
     // Remove any files in 'static/' that do not exist in the theme dir, excluding 'posts/' (which will be handled separately)
     clean_dir(&config.theme, &static_dir, &[OsStr::new("posts")])
         .with_context(|| "Failed to remove")?;
     // Copy auxilliary theme entries
-    copy_dir(
-        &config.theme,
-        &static_dir,
-        &["index.html", "post.html"].map(OsStr::new),
-    )
-    .with_context(|| "Failed to copy over theme files")?;
+    copy_dir(&config.theme, &static_dir, &["templates"].map(OsStr::new))
+        .with_context(|| "Failed to copy over theme files")?;
     // Render markdown posts in 'posts/' to 'static/posts/' as html
-    render_posts(&config, proj_dir.as_ref().join("posts"), &proj_dir)
+    render_posts(&config, proj_dir.as_ref().join("posts"), &proj_dir, &engine)
         .with_context(|| "Failed to render markdown posts")?;
+
     println!(
         "\x1b[32;1mSuccess\x1b[0m: Generated static site for project '{}'",
         config.name

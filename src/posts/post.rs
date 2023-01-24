@@ -52,6 +52,7 @@ impl Error for ParseError {}
 pub struct PostInfo<'a> {
     #[serde(flatten)]
     post: &'a Post,
+    #[serde(flatten)]
     config: &'a Config,
 }
 

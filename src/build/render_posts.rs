@@ -9,14 +9,11 @@ pub fn render_posts(
     config: &Config,
     posts_dir: impl AsRef<Path>,
     proj_dir: impl AsRef<Path>,
+    engine: &Engine,
 ) -> anyhow::Result<()> {
-    let mut engine = Engine::new();
-    let post_template_source = fs::read_to_string(config.theme.join("post.html"))
-        .with_context(|| "Failed to read 'post.html' template")?;
-    engine
-        .add_template("", post_template_source)
-        .with_context(|| "Failed to add 'post.html' template")?;
-    let post_template = engine.get_template("").unwrap();
+    let post_template = engine
+        .get_template("post")
+        .with_context(|| "Missing 'templates/post.html'")?;
     let static_posts_dir = proj_dir.as_ref().join("static/posts");
     fs::create_dir_all(&static_posts_dir).with_context(|| "Failed to create 'static/posts' dir")?;
     for source in fs::read_dir(&posts_dir).with_context(|| "Failed to read 'posts/' dir")? {
