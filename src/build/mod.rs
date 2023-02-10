@@ -33,10 +33,14 @@ pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     let engine = new_engine(&config)?;
     copy_theme(&config, &proj_dir, &engine)?;
     // Remove any files in 'static/' that do not exist in the theme dir, excluding 'posts/' (which will be handled separately)
-    clean_dir(&config.theme, &static_dir, &[OsStr::new("posts")])
-        .with_context(|| "Failed to remove")?;
+    clean_dir(
+        &config.theme,
+        &static_dir,
+        &["posts", "index.html"].map(OsStr::new),
+    )
+    .with_context(|| "Failed to remove")?;
     // Copy auxilliary theme entries
-    copy_dir(&config.theme, &static_dir, &["templates"].map(OsStr::new))
+    copy_dir(&config.theme, &static_dir, &[OsStr::new("templates")])
         .with_context(|| "Failed to copy over theme files")?;
     // Render markdown posts in 'posts/' to 'static/posts/' as html
     render_posts(&config, proj_dir.as_ref().join("posts"), &proj_dir, &engine)
