@@ -24,11 +24,10 @@ pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     {
         bail!("The current directory is not a Hyde project (missing 'hyde.toml')");
     }
-    let hyde_toml =
-        fs::read_to_string(hyde_toml_path).with_context(|| "Failed to read 'hyde.toml'")?;
-    let config = toml::from_str(&hyde_toml).with_context(|| "Failed to parse 'hyde.toml'")?;
+    let hyde_toml = fs::read_to_string(hyde_toml_path).context("Failed to read 'hyde.toml'")?;
+    let config = toml::from_str(&hyde_toml).context("Failed to parse 'hyde.toml'")?;
     let static_dir = proj_dir.as_ref().join("static");
-    fs::create_dir_all(&static_dir).with_context(|| "Failed to create 'static/'")?;
+    fs::create_dir_all(&static_dir).context("Failed to create 'static/'")?;
 
     let engine = new_engine(&config)?;
     copy_theme(&config, &proj_dir, &engine)?;
@@ -38,13 +37,13 @@ pub fn build(proj_dir: impl AsRef<Path>) -> anyhow::Result<()> {
         &static_dir,
         &["posts", "index.html"].map(OsStr::new),
     )
-    .with_context(|| "Failed to remove")?;
+    .context("Failed to remove")?;
     // Copy auxilliary theme entries
     copy_dir(&config.theme, &static_dir, &[OsStr::new("templates")])
-        .with_context(|| "Failed to copy over theme files")?;
+        .context("Failed to copy over theme files")?;
     // Render markdown posts in 'posts/' to 'static/posts/' as html
     render_posts(&config, proj_dir.as_ref().join("posts"), &proj_dir, &engine)
-        .with_context(|| "Failed to render markdown posts")?;
+        .context("Failed to render markdown posts")?;
 
     println!(
         "\x1b[32;1mSuccess\x1b[0m: Generated static site for project '{}'",
@@ -84,7 +83,6 @@ fn copy_dir(
                 .metadata()
                 .with_context(|| format!("Failed to access metadata of '{}'", dest.display()))?;
             if entry_metadata.modified()? > dest_metadata.modified()? {
-                dbg!(entry.path());
                 copy_entry(entry, entry_metadata, dest)?;
             }
         } else {

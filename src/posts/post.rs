@@ -101,48 +101,67 @@ impl Post {
 
 #[derive(Serialize)]
 pub struct RecentPost {
-    url: String,
+    #[serde(skip)]
+    path: PathBuf,
+    url: Option<String>,
     #[serde(flatten)]
     pub frontmatter: Frontmatter,
-    summary: String,
+    md_content: String,
+    summary: Option<String>,
 }
 
 impl RecentPost {
     /// Returns the post at the path, with an empty summary
-    pub fn from_path(path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let filename = path
-            .as_ref()
+    pub fn from_path(path: PathBuf) -> Result<Self, ParseError> {
+        let md_content = fs::read_to_string(&path).map_err(|err| ParseError {
+            path: path.to_path_buf(),
+            info: format!("Failed to read '{}': {err}", path.display()),
+        })?;
+        let mut sections = md_content.split("---");
+        let front_matter_text = sections.nth(1).ok_or_else(|| ParseError {
+            path: path.to_path_buf(),
+            info: "Missing frontmatter".to_string(),
+        })?;
+        let frontmatter = Frontmatter::from_str(front_matter_text, &path)?;
+
+        Ok(Self {
+            path,
+            url: None,
+            frontmatter,
+            md_content,
+            summary: None,
+        })
+    }
+
+    /// Fill in the URL and summary of the post
+    pub fn hydrate(self) -> Result<Self, ParseError> {
+        let filename = self
+            .path
             .file_stem()
             .expect("should have a filename")
             .to_string_lossy()
             .to_string()
             + ".html";
-        let url = PathBuf::from(".")
-            .join("posts")
-            .join(filename)
-            .to_string_lossy()
-            .to_string();
-        let source = fs::read_to_string(&path).map_err(|err| ParseError {
-            path: path.as_ref().to_path_buf(),
-            info: format!("Failed to read '{}': {err}", path.as_ref().display()),
-        })?;
-        let mut sections = source.splitn(3, "---");
-        let front_matter_text = sections.nth(1).ok_or_else(|| ParseError {
-            path: path.as_ref().to_path_buf(),
-            info: "Missing frontmatter".to_string(),
-        })?;
-        let frontmatter = Frontmatter::from_str(front_matter_text, &path)?;
-
-        let content_markdown = sections.next().ok_or_else(|| ParseError {
-            path: path.as_ref().to_path_buf(),
-            info: "Missing frontmatter terminator".to_string(),
-        })?;
-        let summary = summarise_content(content_markdown);
-
-        Ok(Self {
+        let url = Some(
+            PathBuf::from(".")
+                .join("posts")
+                .join(filename)
+                .to_string_lossy()
+                .to_string(),
+        );
+        let content_markdown = self
+            .md_content
+            .split("---")
+            .nth(2)
+            .ok_or_else(|| ParseError {
+                path: self.path.to_path_buf(),
+                info: "Missing frontmatter terminator".to_string(),
+            })?;
+        let summary = Some(summarise_content(content_markdown));
+        Ok(RecentPost {
             url,
-            frontmatter,
             summary,
+            ..self
         })
     }
 }

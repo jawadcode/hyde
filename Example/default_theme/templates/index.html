@@ -14,7 +14,9 @@
       {% for post in recent_posts %}
       <article class="recent-post" lang="{{ post.language }}">
         <h3 class="recent-post-title"><a target="_blank" href="{{ post.url }}">{{ post.title }}</a></h3>
-        <h5 class="recent-post-timestamp"><time datetime="{{ post.datetime }}">{{ post.datetime }}</time></h5>
+        <h5 class="recent-post-timestamp">
+          <time datetime="{{ post.timestamp }}">{{ post.timestamp | fmt_timestamp: "%H:%M %a %e %b %C" }}</time>
+        </h5>
         <p class="recent-post-summary">{{ post.summary | trunc: 384 }}</p>
       </article>
       {% endfor %}

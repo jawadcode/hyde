@@ -19,7 +19,7 @@ for i in range(0, 200):
     content = fake.post(size="large")
     result = f"""---
 title: {title}
-datetime: {date_time}
+timestamp: {date_time}
 language: {language}
 tags: {tags}
 ---

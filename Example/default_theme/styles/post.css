@@ -33,6 +33,8 @@ code {
   color: var(--fg-colour-bold);
 }
 
+img { max-width: 100% }
+
 table {
   border-collapse: collapse;
   box-shadow: 0 0 5px var(--box-shadow);

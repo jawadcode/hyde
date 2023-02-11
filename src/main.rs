@@ -38,13 +38,13 @@ fn run() -> anyhow::Result<()> {
     match Args::parse().command {
         Command::New { name, desc } => new::new(&name, desc.as_deref(), cwd()?)
             .with_context(|| format!("Failed to create project '{name}'"))?,
-        Command::Build => build::build(cwd()?).with_context(|| "Failed to build project")?,
-        Command::Serve => serve::serve(cwd()?).with_context(|| "Failed to serve project")?,
+        Command::Build => build::build(cwd()?).context("Failed to build project")?,
+        Command::Serve => serve::serve(cwd()?).context("Failed to serve project")?,
     };
 
     Ok(())
 }
 
 fn cwd() -> anyhow::Result<PathBuf> {
-    env::current_dir().with_context(|| "Failed to read current directory")
+    env::current_dir().context("Failed to read current directory")
 }

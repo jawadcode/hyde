@@ -13,10 +13,10 @@ pub fn render_posts(
 ) -> anyhow::Result<()> {
     let post_template = engine
         .get_template("post")
-        .with_context(|| "Missing 'templates/post.html'")?;
+        .context("Missing 'templates/post.html'")?;
     let static_posts_dir = proj_dir.as_ref().join("static/posts");
-    fs::create_dir_all(&static_posts_dir).with_context(|| "Failed to create 'static/posts' dir")?;
-    for source in fs::read_dir(&posts_dir).with_context(|| "Failed to read 'posts/' dir")? {
+    fs::create_dir_all(&static_posts_dir).context("Failed to create 'static/posts' dir")?;
+    for source in fs::read_dir(&posts_dir).context("Failed to read 'posts/' dir")? {
         let source = source?;
         let source_path = source.path();
         let source_metadata = source.metadata().with_context(|| {
@@ -47,7 +47,6 @@ pub fn render_posts(
                 )
             })?;
             if source_metadata.modified()? > html_metadata.modified()? {
-                dbg!(source.path());
                 let post = Post::from_path(&source_path)
                     .with_context(|| format!("Failed to read post '{}'", source_path.display()))?;
                 post.render(config, html_path, post_template)?;

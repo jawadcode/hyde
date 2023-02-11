@@ -26,8 +26,8 @@ body[data-theme="default"], body[data-theme="dark"] {
 
 body[data-theme="light"] {
   --primary-bg: #EFEFEF;
-  --secondary-bg: #F4F4F4;
-  --tertiary-bg: #F8F8F8;
+  --secondary-bg: #F3F3F3;
+  --tertiary-bg: #FFFFFF;
   --fg-colour: #202020;
   --fg-colour-bold: #101010;
   --box-shadow: #CCCCCC;

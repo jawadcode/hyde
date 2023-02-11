@@ -1,9 +1,9 @@
-let theme_toggle = "dark";
+document.body.attributes["data-theme"].nodeValue = localStorage.getItem("theme") || "dark";
+
 function toggle_theme() {
-  if (theme_toggle === "dark") {
-    theme_toggle = "light";
-  } else {
-    theme_toggle = "dark";
-  }
-  document.body.attributes["data-theme"].nodeValue = theme_toggle;
+  if (localStorage.getItem("theme") === "dark")
+    localStorage.setItem("theme", "light");
+  else
+    localStorage.setItem("theme", "dark");
+  document.body.attributes["data-theme"].nodeValue = localStorage.getItem("theme");
 }

@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/post.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js" integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
     <title>{{ name }} :: {{ front_matter.title }}</title>
   </head>
   <body lang="{{ front_matter.language }}" data-theme="default">
     {% include "header" %}
     <h1 class="post-header">{{ front_matter.title }}</h1>
     <h5 class="post-timestamp">
-      <time datetime="{{ front_matter.datetime }}">{{ front_matter.datetime }}</time>
+      <time datetime="{{ front_matter.timestamp }}">{{ front_matter.timestamp | fmt_timestamp: "%H:%M %A %e %B %Y" }}</time>
     </h5>
     {{ content }}
     <script src="../theme-switch.js"></script>
