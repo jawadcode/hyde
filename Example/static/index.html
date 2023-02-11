@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/index.css">
+    <title>Example :: An Example Blog</title>
+  </head>
+  <body data-theme="default">
+    <header class="blog-header">
+  <h2 class="blog-name">Example</h2>
+  <div class="theme-switch" onclick="toggle_theme()"></div>
+</header>
+    <h3 class="recent-posts-header">Most recent posts:</h3>
+    <main class="recent-posts">
+      
+      <article class="recent-post" lang="en-GB">
+        <h3 class="recent-post-title"><a target="_blank" href="./posts/hello_world.html">Hello World</a></h3>
+        <h5 class="recent-post-timestamp">
+          <time datetime="2023-02-11T01:49:43.508Z">01:49 Sat 11 Feb 20</time>
+        </h5>
+        <p class="recent-post-summary">$$ \int_{a}^{b} x^2 dx $$...</p>
+      </article>
+      
+    </main>
+    <script src="./theme-switch.js"></script>
+  </body>
+</html>
