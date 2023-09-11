@@ -1,0 +1,29 @@
+[package]
+name = "hyde"
+authors = [ "Jawad Ahmed <jawad.w.ahmed@gmail.com>" ]
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = { version = "0.4", features = [ "serde" ] }
+clap = { version = "4.4", features = [ "derive" ] }
+include_dir = "0.7"
+pulldown-cmark = { version = "0.9", features = [ "simd" ] }
+serde = { version = "1.0", features = [ "derive" ] }
+serde_yaml = "0.9"
+snafu = "0.7"
+thiserror = "1.0"
+toml = "0.5"
+
+# This solution of depending on and statically linking in every grammar that
+# could ever be used is not ideal IMO, I'd much rather have a separate
+# directory of shared objects for each grammar, as helix does.
+#
+# tree-sitter-highlight = "0.20"
+# tree-sitter-c = "0.20"
+# tree-sitter-cpp = "0.20"
+# tree-sitter-ocaml = "0.20"
+# tree-sitter-python = "0.20"
+# tree-sitter-rust = "0.20"
