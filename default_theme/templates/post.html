@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/post.css">
+    <title>{{ name }} :: {{ front_matter.title }}</title>
+  </head>
+  <body lang="{{ front_matter.language }}" data-theme="default">
+    {% include "header" %}
+    <h1 class="post-header">{{ front_matter.title }}</h1>
+    <h5 class="post-timestamp">
+      <time datetime="{{ front_matter.timestamp }}">{{ front_matter.timestamp | fmt_timestamp: "%H:%M %A %e %B %Y" }}</time>
+    </h5>
+    {{ content }}
+    <script src="../theme-switch.js"></script>
+  </body>
+</html>

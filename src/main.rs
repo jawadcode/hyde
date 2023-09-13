@@ -1,6 +1,7 @@
-use std::{io, path::PathBuf};
+use std::{env, io, path::PathBuf};
 
 use clap::{Parser, Subcommand};
+use hyde::new::{self, CreateError};
 use snafu::Snafu;
 
 #[derive(Parser, Debug)]
@@ -29,18 +30,21 @@ enum Command {
 #[allow(unused)]
 #[derive(Debug, Snafu)]
 enum AppError {
-    #[snafu(display("Failed to create project '{}' at '{}': {}", name, path.display(), source))]
+    #[snafu(display("Failed to create project '{name}' at '{}': {source}", path.display()))]
     New {
-        source: io::Error,
+        source: CreateError,
         name: String,
         path: PathBuf,
     },
 
-    #[snafu(display("Failed to build project at '{}': {}", path.display(), source))]
+    #[snafu(display("Failed to build project at '{}': {source}", path.display()))]
     Build { source: io::Error, path: PathBuf },
 
-    #[snafu(display("Failed to serve project at '{}': {}", path.display(), source))]
+    #[snafu(display("Failed to serve project at '{}': {source}", path.display()))]
     Serve { source: io::Error, path: PathBuf },
+
+    #[snafu(display("Failed to get current directory: {source}"))]
+    CurrentDir { source: io::Error },
 }
 
 fn main() {
@@ -52,8 +56,14 @@ fn main() {
 type AppRes = std::result::Result<(), AppError>;
 
 fn run() -> AppRes {
+    let dir = env::current_dir().map_err(|source| AppError::CurrentDir { source })?;
     match Args::parse().command {
-        Command::New { name: _, desc: _ } => todo!(),
+        Command::New { ref name, ref desc } => new::new_project(&dir, name, desc.as_deref())
+            .map_err(|source| AppError::New {
+                source,
+                name: name.clone(),
+                path: dir,
+            }),
         Command::Build => todo!(),
         Command::Serve => todo!(),
     }
