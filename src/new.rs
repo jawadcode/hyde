@@ -26,8 +26,8 @@ pub type CreateRes = std::result::Result<(), CreateError>;
 
 static DEFAULT_THEME: include_dir::Dir = include_dir!("$CARGO_MANIFEST_DIR/default_theme");
 
-pub fn new_project(dir: &Path, name: &str, desc: Option<&str>) -> CreateRes {
-    let dir = dir.join(name);
+pub fn new_project(dir: impl AsRef<Path>, name: &str, desc: Option<&str>) -> CreateRes {
+    let dir = dir.as_ref().join(name);
     fs::create_dir(&dir).map_err(|source| CreateError::ProjectDir { source })?;
     let mut config = File::options()
         .write(true)
