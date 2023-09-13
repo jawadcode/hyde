@@ -31,8 +31,24 @@ pub type CreateRes = std::result::Result<(), CreateError>;
 
 static DEFAULT_THEME: include_dir::Dir = include_dir!("$CARGO_MANIFEST_DIR/default_theme");
 
-/// Create a new Hyde project with a name (passed to templates for generating the `<title>`) and optional description, including creating and writing the default config as well as extracting the embedded default theme into the project dir
-pub fn new_project(dir: impl AsRef<Path>, name: &str, desc: Option<&str>) -> CreateRes {
+/// Creates a new Hyde project
+///
+/// # Arguments
+///
+/// * `dir` - The directory in which the project's directory should be created
+/// * `name` - The name of the Hyde project and of the directory the project will be stored in
+/// * `display_name` - The display name for the site, i.e. the one that will be passed to the index template
+/// * `desc` - An optional description of the site (or some witty tagline)
+///
+/// # Summary
+///
+/// Includes creating and writing to the config (stored in `hyde.toml`), as well as extracting the embedded default theme into the project dir
+pub fn new_project(
+    dir: impl AsRef<Path>,
+    name: &str,
+    display_name: &str,
+    desc: Option<&str>,
+) -> CreateRes {
     let dir = dir.as_ref().join(name);
     fs::create_dir(&dir).map_err(|source| CreateError::ProjectDir { source })?;
     let mut config = File::options()
@@ -40,7 +56,8 @@ pub fn new_project(dir: impl AsRef<Path>, name: &str, desc: Option<&str>) -> Cre
         .create(true)
         .open(dir.join("hyde.toml"))
         .map_err(|source| CreateError::OpenConfig { source })?;
-    write_config(&mut config, name, desc).map_err(|source| CreateError::Io { source })?;
+    write_config(&mut config, name, display_name, desc)
+        .map_err(|source| CreateError::Io { source })?;
     DEFAULT_THEME
         .extract(dir.join("default_theme"))
         .map_err(|source| CreateError::ExtractTheme { source })?;
@@ -51,10 +68,16 @@ pub fn new_project(dir: impl AsRef<Path>, name: &str, desc: Option<&str>) -> Cre
     Ok(())
 }
 
-fn write_config(config: &mut File, name: &str, desc: Option<&str>) -> io::Result<()> {
+fn write_config(
+    config: &mut File,
+    name: &str,
+    display_name: &str,
+    desc: Option<&str>,
+) -> io::Result<()> {
     write!(
         config,
         r#"name = "{name}"
+display_name = "{display_name}"
 description = "{}"
 theme = "default_theme"
 "#,
