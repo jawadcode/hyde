@@ -51,6 +51,7 @@ pub fn new_project(
 ) -> CreateRes {
     let dir = dir.as_ref().join(name);
     fs::create_dir(&dir).map_err(|source| CreateError::ProjectDir { source })?;
+
     let mut config = File::options()
         .write(true)
         .create(true)
@@ -58,9 +59,11 @@ pub fn new_project(
         .map_err(|source| CreateError::OpenConfig { source })?;
     write_config(&mut config, name, display_name, desc)
         .map_err(|source| CreateError::Io { source })?;
+
     DEFAULT_THEME
         .extract(dir.join("default_theme"))
         .map_err(|source| CreateError::ExtractTheme { source })?;
+
     println!(
         "\x1b[32;1mSuccess\x1b[0m: Created project '{name}' at '{}'",
         dir.display()
