@@ -20,9 +20,10 @@ enum Command {
     New {
         name: String,
         /// The display name of the site
+        #[arg(long)]
         display_name: String,
         /// A description of the site
-        #[arg(short, long)]
+        #[arg(long)]
         desc: Option<String>,
     },
     /// Build the project in the current working directory
