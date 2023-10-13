@@ -16,12 +16,15 @@ pub enum CreateError {
     #[snafu(display("IO Error: {source}"))]
     Io { source: io::Error },
 
+    /// Failed to create project directory
     #[snafu(display("Failed to create project directory: {source}"))]
     ProjectDir { source: io::Error },
 
+    /// Failed to open config file
     #[snafu(display("Failed to open config file: {source}"))]
     OpenConfig { source: io::Error },
-
+    
+    /// Failed to extract default theme
     #[snafu(display("Failed to extract default theme: {source}"))]
     ExtractTheme { source: io::Error },
 }
@@ -54,7 +57,7 @@ pub fn new_project(
 
     let mut config = File::options()
         .write(true)
-        .create(true)
+        
         .open(dir.join("hyde.toml"))
         .map_err(|source| CreateError::OpenConfig { source })?;
     write_config(&mut config, name, display_name, desc)
