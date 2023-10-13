@@ -3,19 +3,15 @@
 use std::{
     fs::{self, File},
     io::{self, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use include_dir::include_dir;
-use snafu::Snafu;
+use snafu::{ResultExt, Snafu};
 
 /// An error that occurred during the creation of a Hyde project, there is not much that can go wrong other than IO errors, so this just serves as a classification for them
 #[derive(Debug, Snafu)]
 pub enum CreateError {
-    /// A miscellaneous IO error, e.g. from trying to write to the config
-    #[snafu(display("IO Error: {source}"))]
-    Io { source: io::Error },
-
     /// Failed to create project directory
     #[snafu(display("Failed to create project directory: {source}"))]
     ProjectDir { source: io::Error },
@@ -23,10 +19,14 @@ pub enum CreateError {
     /// Failed to open config file
     #[snafu(display("Failed to open config file: {source}"))]
     OpenConfig { source: io::Error },
-    
+
     /// Failed to extract default theme
     #[snafu(display("Failed to extract default theme: {source}"))]
     ExtractTheme { source: io::Error },
+
+    /// A miscellaneous I/O error caused by trying to read
+    #[snafu(display("IO error at '{}': {source}", path.display()))]
+    MiscIO { source: io::Error, path: PathBuf },
 }
 
 /// The [`Result`] of trying to create a Hyde project
@@ -53,19 +53,19 @@ pub fn new_project(
     desc: Option<&str>,
 ) -> CreateRes {
     let dir = dir.as_ref().join(name);
-    fs::create_dir(&dir).map_err(|source| CreateError::ProjectDir { source })?;
+    fs::create_dir(&dir).context(ProjectDirSnafu {})?;
 
+    let config_path = dir.join("hyde.toml");
     let mut config = File::options()
         .write(true)
-        
-        .open(dir.join("hyde.toml"))
-        .map_err(|source| CreateError::OpenConfig { source })?;
+        .open(config_path.clone())
+        .context(OpenConfigSnafu {})?;
     write_config(&mut config, name, display_name, desc)
-        .map_err(|source| CreateError::Io { source })?;
+        .context(MiscIOSnafu { path: config_path })?;
 
     DEFAULT_THEME
         .extract(dir.join("default_theme"))
-        .map_err(|source| CreateError::ExtractTheme { source })?;
+        .context(ExtractThemeSnafu {})?;
 
     println!(
         "\x1b[32;1mSuccess\x1b[0m: Created project '{name}' at '{}'",
