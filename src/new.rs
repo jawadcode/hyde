@@ -24,7 +24,7 @@ pub enum CreateError {
     #[snafu(display("Failed to extract default theme: {source}"))]
     ExtractTheme { source: io::Error },
 
-    /// A miscellaneous I/O error caused by trying to read
+    /// A miscellaneous I/O error
     #[snafu(display("IO error at '{}': {source}", path.display()))]
     MiscIO { source: io::Error, path: PathBuf },
 }
