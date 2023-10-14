@@ -9,7 +9,9 @@ use std::{
 use include_dir::include_dir;
 use snafu::{ResultExt, Snafu};
 
-/// An error that occurred during the creation of a Hyde project, there is not much that can go wrong other than IO errors, so this just serves as a classification for them
+/// An error that occurred during the creation of a Hyde project,
+/// there is not much that can go wrong other than IO errors,
+/// so this just serves as a classification for them
 #[derive(Debug, Snafu)]
 pub enum CreateError {
     /// Failed to create project directory
@@ -40,12 +42,13 @@ static DEFAULT_THEME: include_dir::Dir = include_dir!("$CARGO_MANIFEST_DIR/defau
 ///
 /// * `dir` - The directory in which the project's directory should be created
 /// * `name` - The name of the Hyde project and of the directory the project will be stored in
-/// * `display_name` - The display name for the site, i.e. the one that will be passed to the index template
+/// * `display_name` - The display name for the site, this will be passed to the index template
 /// * `desc` - An optional description of the site (or some witty tagline)
 ///
 /// # Summary
 ///
-/// Includes creating and writing to the config (stored in `hyde.toml`), as well as extracting the embedded default theme into the project dir
+/// Includes creating and writing to the config (stored in `hyde.toml`),
+/// as well as extracting the embedded default theme into the project dir
 pub fn new_project(
     dir: impl AsRef<Path>,
     name: &str,
