@@ -11,8 +11,8 @@ use snafu::{ResultExt, Snafu};
 
 use crate::Config;
 
-/// An error that arose while building a Hyde project, this is a very broad categorisation,
-/// involving user-input-induced errors and I/O errors
+/// An error that arose while building a Hyde project, this is a very broad categorisation, involving
+/// user-input-induced errors and I/O errors
 #[derive(Debug, Snafu)]
 pub enum BuildError {
     /// The directory is missing the `hyde.toml` config file
