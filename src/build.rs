@@ -60,7 +60,7 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
         path: static_dir.clone(),
     })?;
 
-    /* Remove any extra files in `static/` that do not exist in `config.source` */
+    /* Remove any extra files in `static/` that do not exist in `config.theme` */
     compare_and_clean(
         static_dir,
         config.theme,
