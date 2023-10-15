@@ -131,6 +131,11 @@ fn compare_and_clean(
 }
 
 /// Copies all entries from one directory to another, excluding certain entries
+///
+/// # Errors
+///
+/// Other than the usual points of failure, it is assumed that `source` and `dest` are accessible,
+/// if not, an `Err` is returned.
 fn copy_entries(
     source: impl AsRef<Path>,
     dest: impl AsRef<Path>,
