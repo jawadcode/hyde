@@ -2,7 +2,7 @@
 
 use std::{
     ffi::OsStr,
-    fs,
+    fs::{self, DirEntry, Metadata, ReadDir},
     io::{self, ErrorKind},
     path::{Path, PathBuf},
 };
@@ -60,12 +60,16 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
         path: static_dir.clone(),
     })?;
 
-    /* Remove any extra files in `static/` that do not exist in `config.theme` */
+    /* Remove any extra files in `static/` that do not exist in the project's theme dir */
     compare_and_clean(
-        static_dir,
-        config.theme,
+        &static_dir,
+        &config.theme,
         &["posts", "index.html"].map(OsStr::new),
     )?;
+
+    /* Copy all entries other than `templates/` from the project's theme directory into `static/` */
+    copy_entries(&config.theme, &static_dir, &[OsStr::new("templates")])?;
+
     todo!()
 }
 
@@ -87,6 +91,7 @@ fn compare_and_clean(
     }
 
     let dir = dir.as_ref();
+    // Iterate over the entries in `dir` filtering out those present in `exclude`
     for entry in fs::read_dir(dir)
         .map_err(|err| (err, dir.to_path_buf()))?
         .filter_map(|entry| {
@@ -123,4 +128,61 @@ fn compare_and_clean(
         }
     }
     todo!()
+}
+
+/// Copies all entries from one directory to another, excluding certain entries
+fn copy_entries(
+    source: impl AsRef<Path>,
+    dest: impl AsRef<Path>,
+    exclude: &[&OsStr],
+) -> Result<(), (io::Error, PathBuf)> {
+    let (source, dest) = (source.as_ref(), dest.as_ref());
+    fs::create_dir_all(dest).map_err(|err| (err, dest.to_path_buf()))?;
+    for entry in read_dir(source, exclude)? {
+        let entry_path = entry.path();
+        let entry_metadata = entry.metadata().map_err(|err| (err, entry_path))?;
+        let entry_dest = dest.join(entry.file_name());
+        if entry_dest.exists() {
+            let dest_metadata = dest
+                .metadata()
+                .map_err(|err| (err.into(), entry_dest.clone()))?;
+            // Idk about the error case, if your platform doesn't have a last write timestamp then
+            // it's pretty much a skill issue.
+            if entry_metadata.modified().unwrap() > dest_metadata.modified().unwrap() {
+                copy_entry(entry, entry_metadata, entry_dest)?;
+            }
+        } else {
+            copy_entry(entry, entry_metadata, dest)?;
+        }
+    }
+    todo!()
+}
+
+// cheers Matt
+fn read_dir<'a>(
+    dir: &Path,
+    exclude: &'a [&OsStr],
+) -> Result<impl Iterator<Item = DirEntry> + 'a, (io::Error, PathBuf)> {
+    let dir_entries = fs::read_dir(dir).map_err(|err| (err, dir.to_path_buf()))?;
+    let entry_filter = |entry: &DirEntry| !exclude.contains(&entry.path().as_os_str());
+    Ok(dir_entries.filter_map(move |entry| entry.ok().filter(entry_filter)))
+}
+
+fn copy_entry(
+    entry: DirEntry,
+    entry_metadata: Metadata,
+    dest: impl AsRef<Path>,
+) -> Result<(), (io::Error, PathBuf)> {
+    let entry_path = entry.path();
+    if entry_metadata.is_file() || entry_metadata.is_symlink() {
+        fs::copy(&entry_path, dest).map_err(|err| (err, entry_path))?;
+        Ok(())
+    } else if entry_metadata.is_dir() {
+        copy_entries(entry_path, dest, &[])
+    } else {
+        return Err((
+            io::Error::new(ErrorKind::Other, "not a file, directory or symlink"),
+            entry_path.to_path_buf(),
+        ));
+    }
 }
