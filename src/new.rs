@@ -56,19 +56,19 @@ pub fn new_project(
     desc: Option<&str>,
 ) -> CreateRes {
     let dir = dir.as_ref().join(name);
-    fs::create_dir(&dir).context(ProjectDirSnafu {})?;
+    fs::create_dir(&dir).context(ProjectDirSnafu)?;
 
     let config_path = dir.join("hyde.toml");
     let mut config = File::options()
         .write(true)
         .open(config_path.clone())
-        .context(OpenConfigSnafu {})?;
+        .context(OpenConfigSnafu)?;
     write_config(&mut config, name, display_name, desc)
         .context(MiscIOSnafu { path: config_path })?;
 
     DEFAULT_THEME
         .extract(dir.join("default_theme"))
-        .context(ExtractThemeSnafu {})?;
+        .context(ExtractThemeSnafu)?;
 
     println!(
         "\x1b[32;1mSuccess\x1b[0m: Created project '{name}' at '{}'",
