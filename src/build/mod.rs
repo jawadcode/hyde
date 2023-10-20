@@ -1,5 +1,7 @@
 //! Building a Hyde project
 
+mod compile_posts;
+
 use std::{
     ffi::OsStr,
     fs::{self, DirEntry, Metadata},
@@ -9,7 +11,9 @@ use std::{
 
 use snafu::{ResultExt, Snafu};
 
-use crate::Config;
+use crate::{build::compile_posts::compile_posts, Config};
+
+use self::compile_posts::CompilePostsError;
 
 /// An error that arose while building a Hyde project, this is a very broad categorisation,
 /// involving user-input-induced errors and I/O errors
@@ -23,6 +27,10 @@ pub enum BuildError {
     #[snafu(display("Failed to parse the `hyde.toml` config file: {source}"))]
     ParseConfig { source: toml::de::Error },
 
+    /// Failed to compile the markdown posts in the `posts/` directory
+    #[snafu(display("Failed to compile posts: {source}"))]
+    CompilePost { source: CompilePostsError },
+
     /// A miscellaneous I/O error
     #[snafu(display("IO error at '{}': {source}", path.display()))]
     MiscIO { source: io::Error, path: PathBuf },
@@ -35,7 +43,7 @@ impl From<(io::Error, PathBuf)> for BuildError {
 }
 
 /// The [`Result`] of trying to build a Hyde project
-pub type BuildRes = std::result::Result<(), BuildError>;
+pub type BuildRes = Result<(), BuildError>;
 
 /// Builds the Hyde project in a given directory
 ///
@@ -45,17 +53,18 @@ pub type BuildRes = std::result::Result<(), BuildError>;
 /// copy over the auxiliary theme files, and compile all of the posts in the `posts/` directory into it,
 /// using the `templates/` from the theme specified in the config.
 pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
+    let dir = dir.as_ref();
     /* Read and parse the `hyde.toml` config */
-    let config_path = dir.as_ref().join("hyde.toml");
+    let config_path = dir.join("hyde.toml");
     if !config_path.exists() {
         return Err(BuildError::MissingConfig);
     }
     let config_source =
         fs::read_to_string(config_path.clone()).context(MiscIOSnafu { path: config_path })?;
-    let config: Config = toml::from_str(&config_source).context(ParseConfigSnafu {})?;
+    let config: Config = toml::from_str(&config_source).context(ParseConfigSnafu)?;
 
     /* Create the `static/` directory for statically generated output if it does not already exist */
-    let static_dir = dir.as_ref().join("static");
+    let static_dir = dir.join("static");
     fs::create_dir_all(static_dir.clone()).context(MiscIOSnafu {
         path: static_dir.clone(),
     })?;
@@ -71,6 +80,7 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
     copy_entries(&config.theme, &static_dir, &[OsStr::new("templates")])?;
 
     /* Compile all posts in `posts/` into `static/` */
+    compile_posts(&config, dir).context(CompilePostSnafu)?;
 
     todo!()
 }
@@ -156,9 +166,7 @@ fn copy_entries(
         let entry_dest = dest.join(entry.file_name());
         // If the corresponding entry in `dest` already exists, we only overwrite it if it is older
         if entry_dest.exists() {
-            let dest_metadata = dest
-                .metadata()
-                .map_err(|err| (err.into(), entry_dest.clone()))?;
+            let dest_metadata = dest.metadata().map_err(|err| (err, entry_dest.clone()))?;
             // Idk about the error case, if your platform doesn't have a last write timestamp then
             // it's pretty much a skill issue.
             if entry_metadata.modified().unwrap() > dest_metadata.modified().unwrap() {
