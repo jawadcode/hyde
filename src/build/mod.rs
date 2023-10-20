@@ -2,7 +2,7 @@
 
 use std::{
     ffi::OsStr,
-    fs::{self, DirEntry, Metadata, ReadDir},
+    fs::{self, DirEntry, Metadata},
     io::{self, ErrorKind},
     path::{Path, PathBuf},
 };
@@ -69,6 +69,8 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
 
     /* Copy all entries other than `templates/` from the project's theme directory into `static/` */
     copy_entries(&config.theme, &static_dir, &[OsStr::new("templates")])?;
+
+    /* Compile all posts in `posts/` into `static/` */
 
     todo!()
 }
