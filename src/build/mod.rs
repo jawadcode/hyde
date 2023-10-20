@@ -132,7 +132,12 @@ fn compare_and_clean(
     todo!()
 }
 
-/// Copies all entries from one directory to another, excluding certain entries
+/// Copies all entries from one directory to another, excluding certain entries.
+///
+/// # Note
+///
+/// Entries are only copied from `source` to `dest` if the entry in `dest` either does not exist or
+/// is older than the entry in `source`
 ///
 /// # Errors
 ///
@@ -149,6 +154,7 @@ fn copy_entries(
         let entry_path = entry.path();
         let entry_metadata = entry.metadata().map_err(|err| (err, entry_path))?;
         let entry_dest = dest.join(entry.file_name());
+        // If the corresponding entry in `dest` already exists, we only overwrite it if it is older
         if entry_dest.exists() {
             let dest_metadata = dest
                 .metadata()
@@ -158,7 +164,9 @@ fn copy_entries(
             if entry_metadata.modified().unwrap() > dest_metadata.modified().unwrap() {
                 copy_entry(entry, entry_metadata, entry_dest)?;
             }
-        } else {
+        }
+        // It doesn't exist so we can just copy to it
+        else {
             copy_entry(entry, entry_metadata, dest)?;
         }
     }
