@@ -211,6 +211,7 @@ dependencies = [
  "snafu",
  "thiserror",
  "toml",
+ "upon",
 ]
 
 [[package]]
@@ -487,6 +488,15 @@ name = "unsafe-libyaml"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f28467d3e1d3c6586d8f25fa243f544f5800fec42d97032474e17222c2b75cfa"
+
+[[package]]
+name = "upon"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21a9260fe394dfd8ab204a8eab40f88eb9a331bb852147d24fc0aff6b30daa02"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "utf8parse"

@@ -1,6 +1,8 @@
 //! Building a Hyde project
 
-mod compile_posts;
+mod engine;
+mod index;
+mod posts;
 
 use std::{
     ffi::OsStr,
@@ -11,9 +13,10 @@ use std::{
 
 use snafu::{ResultExt, Snafu};
 
-use crate::{build::compile_posts::compile_posts, Config};
-
-use self::compile_posts::CompilePostsError;
+use crate::{
+    build::{engine::Engine, posts::compile_posts},
+    Config,
+};
 
 /// An error that arose while building a Hyde project, this is a very broad categorisation,
 /// involving user-input-induced errors and I/O errors
@@ -27,9 +30,21 @@ pub enum BuildError {
     #[snafu(display("Failed to parse the `hyde.toml` config file: {source}"))]
     ParseConfig { source: toml::de::Error },
 
+    /// Failed to compile a template in the project's theme directory
+    #[snafu(display("Failed to compile a template: {source}"))]
+    CompileTemplate { source: upon::Error },
+
+    /// Missing the index template in the project's theme
+    #[snafu(display("Couldn't find 'templates/index.html' in the theme directory: '{}'", path.display()))]
+    IndexTemplate { path: PathBuf },
+
+    /// Missing the post template in the project's theme
+    #[snafu(display("Couldn't find 'templates/post.html' in the theme directory: '{}'", path.display()))]
+    PostTemplate { path: PathBuf },
+
     /// Failed to compile the markdown posts in the `posts/` directory
-    #[snafu(display("Failed to compile posts: {source}"))]
-    CompilePost { source: CompilePostsError },
+    #[snafu(display("Failed to compile posts: '{}': {source}", path.display()))]
+    CompilePosts { source: io::Error, path: PathBuf },
 
     /// A miscellaneous I/O error
     #[snafu(display("IO error at '{}': {source}", path.display()))]
@@ -69,6 +84,11 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
         path: static_dir.clone(),
     })?;
 
+    /* Initialise the template engine and render the index page */
+    let mut engine = Engine::default();
+    engine.load_templates(&config)?;
+    engine.render_index(&config, dir)?;
+
     /* Remove any extra files in `static/` that do not exist in the project's theme dir */
     compare_and_clean(
         &static_dir,
@@ -80,7 +100,8 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
     copy_entries(&config.theme, &static_dir, &[OsStr::new("templates")])?;
 
     /* Compile all posts in `posts/` into `static/` */
-    compile_posts(&config, dir).context(CompilePostSnafu)?;
+    compile_posts(&config, dir)
+        .map_err(|(source, path)| BuildError::CompilePosts { source, path })?;
 
     todo!()
 }

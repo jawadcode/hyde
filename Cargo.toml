@@ -16,6 +16,7 @@ serde_yaml = "0.9"
 snafu = "0.7"
 thiserror = "1.0"
 toml = "0.5"
+upon = { version = "0.7", default-features = false, features = ["serde", "filters"] }
 
 # This solution of depending on and statically linking in every grammar that
 # could ever be used is not ideal IMO, I'd much rather have a separate
