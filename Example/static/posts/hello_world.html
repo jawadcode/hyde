@@ -22,49 +22,120 @@
 <tr><td style="text-align: center">57439</td><td style="text-align: center">57438</td></tr>
 </tbody></table>
 <h1>Some Code</h1>
+<h2>Rust Code</h2>
+<p>Here is some rust code:</p>
 <pre><code class="language-rs"><span class="comment">/// Highlight the contents of a fenced code block of a given source language as HTML</span>
-
-<span class="keyword">pub</span> <span class="keyword">fn</span> highlight&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt;(<span class="variable-parameter">lang</span>: <span class="type">CowStr</span>&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt;, <span class="variable-parameter">code</span>: <span class="type">CowStr</span>&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt;) -&gt; <span class="type">CowStr</span>&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt; {
-
-    <span class="keyword">let</span> lang: <span class="type">Language</span> = <span class="keyword">if</span> <span class="keyword">let</span> <span class="constructor">Ok</span>(lang) = lang.<span class="function">parse</span>() {
-
+<span class="keyword">pub</span> <span class="keyword">fn</span> <span class="function">highlight</span><span class="punctuation-bracket">&lt;</span><span class="operator">&#39;</span><span class="label">src</span><span class="punctuation-bracket">&gt;</span><span class="punctuation-bracket">(</span><span class="parameter">lang</span><span class="punctuation-delimiter">:</span> <span class="type">CowStr</span><span class="punctuation-bracket">&lt;</span><span class="operator">&#39;</span><span class="label">src</span><span class="punctuation-bracket">&gt;</span><span class="punctuation-delimiter">,</span> <span class="parameter">code</span><span class="punctuation-delimiter">:</span> <span class="type">CowStr</span><span class="punctuation-bracket">&lt;</span><span class="operator">&#39;</span><span class="label">src</span><span class="punctuation-bracket">&gt;</span><span class="punctuation-bracket">)</span> -&gt; <span class="type">CowStr</span><span class="punctuation-bracket">&lt;</span><span class="operator">&#39;</span><span class="label">src</span><span class="punctuation-bracket">&gt;</span> <span class="punctuation-bracket">{</span>
+    <span class="keyword">let</span> lang<span class="punctuation-delimiter">:</span> <span class="type">Language</span> = <span class="keyword">if</span> <span class="keyword">let</span> <span class="constructor">Ok</span><span class="punctuation-bracket">(</span>lang<span class="punctuation-bracket">)</span> = lang<span class="punctuation-delimiter">.</span><span class="function">parse</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span> <span class="punctuation-bracket">{</span>
         lang
+    <span class="punctuation-bracket">}</span> <span class="keyword">else</span> <span class="punctuation-bracket">{</span>
+        <span class="keyword">return</span> code<span class="punctuation-delimiter">;</span>
+    <span class="punctuation-bracket">}</span><span class="punctuation-delimiter">;</span>
+    <span class="keyword">let</span> config = lang<span class="punctuation-delimiter">.</span><span class="function">get_config</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span>
 
-    } <span class="keyword">else</span> {
-
-        <span class="keyword">return</span> code;
-
-    };
-
-    <span class="keyword">let</span> config = lang.<span class="function">get_config</span>();
-
-
-    <span class="keyword">let</span> <span class="keyword">mut</span> highlighter = <span class="type">Highlighter</span>::<span class="function">new</span>();
-
+    <span class="keyword">let</span> <span class="keyword">mut</span> highlighter = <span class="type">Highlighter</span><span class="punctuation-delimiter">::</span><span class="function">new</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span>
     <span class="keyword">let</span> highlights = highlighter
+        <span class="punctuation-delimiter">.</span><span class="function">highlight</span><span class="punctuation-bracket">(</span>config<span class="punctuation-delimiter">,</span> code<span class="punctuation-delimiter">.</span><span class="function">as_bytes</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">,</span> <span class="constructor">None</span><span class="punctuation-delimiter">,</span> |_| <span class="constructor">None</span><span class="punctuation-bracket">)</span>
+        <span class="punctuation-delimiter">.</span><span class="function">unwrap</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span>
 
-        .<span class="function">highlight</span>(config, code.<span class="function">as_bytes</span>(), <span class="constructor">None</span>, |_| <span class="constructor">None</span>)
-
-        .<span class="function">unwrap</span>();
-
-
-    <span class="keyword">let</span> <span class="keyword">mut</span> renderer = <span class="type">HtmlRenderer</span>::<span class="function">new</span>();
-
+    <span class="keyword">let</span> <span class="keyword">mut</span> renderer = <span class="type">HtmlRenderer</span><span class="punctuation-delimiter">::</span><span class="function">new</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span>
     renderer
+        <span class="punctuation-delimiter">.</span><span class="function">render</span><span class="punctuation-bracket">(</span>highlights<span class="punctuation-delimiter">,</span> code<span class="punctuation-delimiter">.</span><span class="function">as_bytes</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">,</span> <span class="operator">&amp;</span>|highlight| <span class="punctuation-bracket">{</span>
+            <span class="constructor">HTML_ATTRS</span><span class="punctuation-bracket">[</span>highlight<span class="punctuation-delimiter">.</span><span class="constant-builtin">0</span><span class="punctuation-bracket">]</span><span class="punctuation-delimiter">.</span><span class="function">as_bytes</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span>
+        <span class="punctuation-bracket">}</span><span class="punctuation-bracket">)</span>
+        <span class="punctuation-delimiter">.</span><span class="function">unwrap</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span>
 
-        .render(highlights, code.<span class="function">as_bytes</span>(), <span class="operator">&amp;</span>|highlight| {
+    <span class="type">CowStr</span><span class="punctuation-delimiter">::</span><span class="function">from</span><span class="punctuation-bracket">(</span><span class="type">String</span><span class="punctuation-delimiter">::</span><span class="function">from_utf8</span><span class="punctuation-bracket">(</span>renderer<span class="punctuation-delimiter">.</span><span class="property">html</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">.</span><span class="function">unwrap</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span><span class="punctuation-bracket">)</span>
+<span class="punctuation-bracket">}</span>
+</code></pre>
+<h2>OCaml Code</h2>
+<p>Here is some OCaml code:</p>
+<pre><code class="language-ml"><span class="keyword">open</span> Batteries
 
-            <span class="constructor">HTML_ATTRS</span>[highlight.<span class="constant-builtin">0</span>].<span class="function">as_bytes</span>()
+<span class="keyword">let</span> <span class="function">priority</span> <span class="parameter">ch</span> <span class="punctuation-delimiter">=</span>
+  <span class="keyword">if</span> Char<span class="punctuation-delimiter">.</span><span class="function">is_lowercase</span> <span class="variable">ch</span> <span class="keyword">then</span> Char<span class="punctuation-delimiter">.</span><span class="function">code</span> <span class="variable">ch</span> <span class="operator">-</span> Char<span class="punctuation-delimiter">.</span><span class="function">code</span> <span class="string">&#39;a&#39;</span> <span class="operator">+</span> <span class="number">1</span>
+  <span class="keyword">else</span> Char<span class="punctuation-delimiter">.</span><span class="function">code</span> <span class="variable">ch</span> <span class="operator">-</span> Char<span class="punctuation-delimiter">.</span><span class="function">code</span> <span class="string">&#39;A&#39;</span> <span class="operator">+</span> <span class="number">27</span>
 
-        })
+<span class="keyword">let</span> <span class="keyword">rec</span> <span class="function">part_one</span> <span class="parameter">contents</span> <span class="punctuation-delimiter">=</span>
+  <span class="function">get_rucksacks</span> <span class="variable">contents</span>
+  <span class="operator">|&gt;</span> List<span class="punctuation-delimiter">.</span><span class="function">map</span> <span class="punctuation-bracket">(</span><span class="keyword">fun</span> <span class="parameter">group</span> <span class="punctuation-delimiter">-&gt;</span>
+         <span class="keyword">let</span> <span class="variable">first</span><span class="punctuation-delimiter">,</span> <span class="variable">second</span> <span class="punctuation-delimiter">=</span> Tuple2<span class="punctuation-delimiter">.</span><span class="function">mapn</span> <span class="punctuation-bracket">(</span>Set<span class="punctuation-delimiter">.</span><span class="variable">of_seq</span> <span class="operator">%</span> String<span class="punctuation-delimiter">.</span><span class="variable">to_seq</span><span class="punctuation-bracket">)</span> <span class="variable">group</span> <span class="keyword">in</span>
+         <span class="keyword">let</span> <span class="variable">result</span> <span class="punctuation-delimiter">=</span> Set<span class="punctuation-delimiter">.</span><span class="function">intersect</span> <span class="variable">first</span> <span class="variable">second</span> <span class="operator">|&gt;</span> Set<span class="punctuation-delimiter">.</span><span class="function">map</span> <span class="variable">priority</span> <span class="keyword">in</span>
+         Set<span class="punctuation-delimiter">.</span><span class="function">fold</span> <span class="punctuation-bracket">(</span> <span class="operator">+</span> <span class="punctuation-bracket">)</span> <span class="variable">result</span> <span class="number">0</span><span class="punctuation-bracket">)</span>
+  <span class="operator">|&gt;</span> List<span class="punctuation-delimiter">.</span><span class="function">sum</span> <span class="operator">|&gt;</span> Printf<span class="punctuation-delimiter">.</span><span class="function">printf</span> <span class="string">&quot;Sum: <span class="string">%d</span>\n&quot;</span>
 
-        .<span class="function">unwrap</span>();
+<span class="keyword">and</span> <span class="function">get_rucksacks</span> <span class="parameter">contents</span> <span class="punctuation-delimiter">=</span>
+  String<span class="punctuation-delimiter">.</span><span class="function">split_on_char</span> <span class="string">&#39;\n&#39;</span> <span class="variable">contents</span>
+  <span class="operator">|&gt;</span> List<span class="punctuation-delimiter">.</span><span class="function">map</span> <span class="punctuation-bracket">(</span><span class="keyword">fun</span> <span class="parameter">str</span> <span class="punctuation-delimiter">-&gt;</span>
+         <span class="keyword">let</span> <span class="variable">mid</span> <span class="punctuation-delimiter">=</span> Int<span class="punctuation-delimiter">.</span><span class="function">div</span> <span class="punctuation-bracket">(</span>String<span class="punctuation-delimiter">.</span><span class="function">length</span> <span class="variable">str</span><span class="punctuation-bracket">)</span> <span class="number">2</span> <span class="keyword">in</span>
+         <span class="punctuation-bracket">(</span>String<span class="punctuation-delimiter">.</span><span class="function">sub</span> <span class="variable">str</span> <span class="number">0</span> <span class="variable">mid</span><span class="punctuation-delimiter">,</span> String<span class="punctuation-delimiter">.</span><span class="function">sub</span> <span class="variable">str</span> <span class="variable">mid</span> <span class="variable">mid</span><span class="punctuation-bracket">)</span><span class="punctuation-bracket">)</span>
 
+<span class="keyword">let</span> <span class="keyword">rec</span> <span class="function">part_two</span> <span class="parameter">contents</span> <span class="punctuation-delimiter">=</span>
+  String<span class="punctuation-delimiter">.</span><span class="function">split_on_char</span> <span class="string">&#39;\n&#39;</span> <span class="variable">contents</span>
+  <span class="operator">|&gt;</span> <span class="function">group_three</span>
+  <span class="operator">|&gt;</span> List<span class="punctuation-delimiter">.</span><span class="function">map</span> <span class="punctuation-bracket">(</span><span class="keyword">fun</span> <span class="parameter">group</span> <span class="punctuation-delimiter">-&gt;</span>
+         <span class="keyword">let</span> <span class="variable">first</span><span class="punctuation-delimiter">,</span> <span class="variable">second</span><span class="punctuation-delimiter">,</span> <span class="variable">third</span> <span class="punctuation-delimiter">=</span>
+           Tuple3<span class="punctuation-delimiter">.</span><span class="function">mapn</span> <span class="punctuation-bracket">(</span>Set<span class="punctuation-delimiter">.</span><span class="variable">of_seq</span> <span class="operator">%</span> String<span class="punctuation-delimiter">.</span><span class="variable">to_seq</span><span class="punctuation-bracket">)</span> <span class="variable">group</span>
+         <span class="keyword">in</span>
+         Set<span class="punctuation-delimiter">.</span><span class="function">intersect</span> <span class="variable">first</span> <span class="variable">second</span> <span class="operator">|&gt;</span> Set<span class="punctuation-delimiter">.</span><span class="function">intersect</span> <span class="variable">third</span> <span class="operator">|&gt;</span> Set<span class="punctuation-delimiter">.</span><span class="function">any</span><span class="punctuation-bracket">)</span>
+  <span class="operator">|&gt;</span> List<span class="punctuation-delimiter">.</span><span class="function">map</span> <span class="variable">priority</span> <span class="operator">|&gt;</span> List<span class="punctuation-delimiter">.</span><span class="function">sum</span> <span class="operator">|&gt;</span> Printf<span class="punctuation-delimiter">.</span><span class="function">printf</span> <span class="string">&quot;Sum: <span class="string">%d</span>\n&quot;</span>
 
-    <span class="type">CowStr</span>::<span class="function">from</span>(<span class="type">String</span>::<span class="function">from_utf8</span>(renderer.html).<span class="function">unwrap</span>())
+<span class="keyword">and</span> <span class="function">group_three</span> <span class="parameter">rucksacks</span> <span class="punctuation-delimiter">=</span>
+  <span class="keyword">match</span> <span class="variable">rucksacks</span> <span class="keyword">with</span>
+  <span class="punctuation-delimiter">|</span> <span class="parameter">first</span> <span class="operator">::</span> <span class="parameter">second</span> <span class="operator">::</span> <span class="parameter">third</span> <span class="operator">::</span> <span class="parameter">rest</span> <span class="punctuation-delimiter">-&gt;</span>
+      List<span class="punctuation-delimiter">.</span><span class="function">cons</span> <span class="punctuation-bracket">(</span><span class="variable">first</span><span class="punctuation-delimiter">,</span> <span class="variable">second</span><span class="punctuation-delimiter">,</span> <span class="variable">third</span><span class="punctuation-bracket">)</span> <span class="punctuation-bracket">(</span><span class="function">group_three</span> <span class="variable">rest</span><span class="punctuation-bracket">)</span>
+  <span class="punctuation-delimiter">|</span> <span class="punctuation-bracket">[</span><span class="punctuation-bracket">]</span> <span class="punctuation-delimiter">-&gt;</span> <span class="punctuation-bracket">[</span><span class="punctuation-bracket">]</span>
+  <span class="punctuation-delimiter">|</span> <span class="parameter">_</span> <span class="punctuation-delimiter">-&gt;</span> <span class="keyword">assert</span> <span class="constant">false</span>
 
-}
+<span class="keyword">let</span> <span class="variable">arg</span> <span class="punctuation-delimiter">=</span> <span class="keyword">try</span> <span class="constructor">Some</span> Sys<span class="punctuation-delimiter">.</span><span class="variable">argv</span><span class="punctuation-delimiter">.</span><span class="punctuation-bracket">(</span><span class="number">1</span><span class="punctuation-bracket">)</span> <span class="keyword">with</span> <span class="constructor">Invalid_argument</span> <span class="parameter">_</span> <span class="punctuation-delimiter">-&gt;</span> <span class="constructor">None</span>
 
+<span class="keyword">let</span> <span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span> <span class="punctuation-delimiter">=</span>
+  <span class="keyword">let</span> <span class="variable">contents</span> <span class="punctuation-delimiter">=</span> File<span class="punctuation-delimiter">.</span><span class="function">with_file_in</span> <span class="string">&quot;input.txt&quot;</span> IO<span class="punctuation-delimiter">.</span><span class="variable">read_all</span> <span class="keyword">in</span>
+  <span class="keyword">match</span> <span class="variable">arg</span> <span class="keyword">with</span>
+  <span class="punctuation-delimiter">|</span> <span class="constructor">Some</span> <span class="punctuation-bracket">(</span><span class="string">&quot;one&quot;</span> <span class="punctuation-delimiter">|</span> <span class="string">&quot;1&quot;</span><span class="punctuation-bracket">)</span> <span class="punctuation-delimiter">-&gt;</span> <span class="function">part_one</span> <span class="variable">contents</span>
+  <span class="punctuation-delimiter">|</span> <span class="constructor">Some</span> <span class="punctuation-bracket">(</span><span class="string">&quot;two&quot;</span> <span class="punctuation-delimiter">|</span> <span class="string">&quot;2&quot;</span><span class="punctuation-bracket">)</span> <span class="punctuation-delimiter">-&gt;</span> <span class="function">part_two</span> <span class="variable">contents</span>
+  <span class="punctuation-delimiter">|</span> <span class="parameter">_</span> <span class="punctuation-delimiter">-&gt;</span> <span class="function">print_endline</span> <span class="string">&quot;Usage: day_3_rucksack_reorganization &lt;part&gt;&quot;</span>
+</code></pre>
+<h2>Haskell Code</h2>
+<p>Here is some Haskell code:</p>
+<pre><code class="language-hs"><span class="include">module</span> <span class="namespace">Main</span> <span class="keyword">where</span>
+
+<span class="include">import</span> <span class="operator"><span class="namespace">Data</span>.<span class="namespace">Bits</span></span> <span class="punctuation-bracket">(</span><span class="type">Bits</span> <span class="punctuation-bracket">(</span><span class="variable">complement</span><span class="punctuation-delimiter">,</span> <span class="variable">shiftL</span><span class="punctuation-delimiter">,</span> <span class="variable">xor</span><span class="punctuation-bracket">)</span><span class="punctuation-bracket">)</span>
+<span class="include">import</span> <span class="operator"><span class="namespace">Data</span>.<span class="namespace">Char</span></span> <span class="punctuation-bracket">(</span><span class="variable">ord</span><span class="punctuation-bracket">)</span>
+<span class="include">import</span> <span class="operator"><span class="namespace">Data</span>.<span class="namespace">Foldable</span></span> <span class="punctuation-bracket">(</span><span class="type">Foldable</span> <span class="punctuation-bracket">(</span><span class="variable">foldl&#39;</span><span class="punctuation-bracket">)</span><span class="punctuation-bracket">)</span>
+<span class="include">import</span> <span class="operator"><span class="namespace">GHC</span>.<span class="namespace">Float</span></span> <span class="punctuation-bracket">(</span><span class="variable">int2Float</span><span class="punctuation-bracket">)</span>
+
+<span class="variable">countDigits</span> <span class="operator">::</span> <span class="punctuation-bracket">[</span><span class="type">Int</span><span class="punctuation-bracket">]</span> <span class="operator">-&gt;</span> <span class="type">String</span> <span class="operator">-&gt;</span> <span class="punctuation-bracket">[</span><span class="type">Int</span><span class="punctuation-bracket">]</span>
+<span class="variable">countDigits</span> <span class="variable">oneCounts</span> <span class="variable">number</span> <span class="operator">=</span>
+  <span class="keyword">let</span> <span class="variable">zipped</span> <span class="operator">=</span> <span class="variable">zip</span> <span class="variable">oneCounts</span> <span class="variable">number</span>
+   <span class="keyword">in</span> <span class="variable">map</span> <span class="punctuation-bracket">(</span><span class="operator">\</span><span class="punctuation-bracket">(</span><span class="variable">num</span><span class="punctuation-delimiter">,</span> <span class="variable">digit</span><span class="punctuation-bracket">)</span> <span class="operator">-&gt;</span> <span class="function"><span class="variable">num</span></span> <span class="operator">+</span> <span class="variable">ord</span> <span class="variable">digit</span> <span class="operator">-</span> <span class="number">48</span><span class="punctuation-bracket">)</span> <span class="variable">zipped</span>
+
+<span class="variable">getDigits</span> <span class="operator">::</span> <span class="punctuation-bracket">[</span><span class="type">String</span><span class="punctuation-bracket">]</span> <span class="operator">-&gt;</span> <span class="punctuation-bracket">[</span><span class="type">Int</span><span class="punctuation-bracket">]</span>
+<span class="variable">getDigits</span> <span class="punctuation-bracket">(</span><span class="variable">head</span> <span class="operator">:</span> <span class="variable">tail</span><span class="punctuation-bracket">)</span> <span class="operator">=</span>
+  <span class="variable">foldl&#39;</span> <span class="variable">countDigits</span> <span class="punctuation-bracket">[</span><span class="variable">ord</span> <span class="variable">c</span> <span class="operator">-</span> <span class="number">48</span> <span class="operator">|</span> <span class="variable">c</span> <span class="operator">&lt;-</span> <span class="variable">head</span><span class="punctuation-bracket">]</span> <span class="variable">tail</span>
+<span class="variable">getDigits</span> <span class="punctuation-bracket">[</span><span class="punctuation-bracket">]</span> <span class="operator">=</span> <span class="punctuation-bracket">[</span><span class="punctuation-bracket">]</span>
+
+<span class="variable">toBin</span> <span class="operator">::</span> <span class="type">Int</span> <span class="operator">-&gt;</span> <span class="punctuation-bracket">[</span><span class="type">Int</span><span class="punctuation-bracket">]</span> <span class="operator">-&gt;</span> <span class="punctuation-bracket">[</span><span class="type">Int</span><span class="punctuation-bracket">]</span>
+<span class="variable">toBin</span> <span class="variable">len</span> <span class="operator">=</span>
+  <span class="variable">map</span> <span class="punctuation-bracket">(</span><span class="operator">\</span><span class="variable">digit</span> <span class="operator">-&gt;</span> <span class="conditional">if</span> <span class="variable">int2Float</span> <span class="variable">digit</span> <span class="operator">&gt;</span> <span class="variable">int2Float</span> <span class="variable">len</span> <span class="operator">/</span> <span class="number">2</span> <span class="conditional">then</span> <span class="number">1</span> <span class="conditional">else</span> <span class="number">0</span><span class="punctuation-bracket">)</span>
+
+<span class="variable">getGamma</span> <span class="operator">::</span> <span class="type">Int</span> <span class="operator">-&gt;</span> <span class="punctuation-bracket">[</span><span class="type">Int</span><span class="punctuation-bracket">]</span> <span class="operator">-&gt;</span> <span class="type">Int</span>
+<span class="variable">getGamma</span> <span class="variable">len</span> <span class="variable">numbers</span> <span class="operator">=</span>
+  <span class="variable">foldl&#39;</span> <span class="punctuation-bracket">(</span><span class="operator">\</span><span class="variable">acc</span> <span class="variable">digit</span> <span class="operator">-&gt;</span> <span class="number">2</span> <span class="operator">*</span> <span class="function"><span class="variable">acc</span></span> <span class="operator">+</span> <span class="function"><span class="variable">digit</span></span><span class="punctuation-bracket">)</span> <span class="number">0</span> <span class="operator">$</span> <span class="variable">toBin</span> <span class="variable">len</span> <span class="variable">numbers</span>
+
+<span class="variable">getNumbers</span> <span class="operator">::</span> <span class="type">String</span> <span class="operator">-&gt;</span> <span class="type">IO</span> <span class="punctuation-bracket">[</span><span class="type">String</span><span class="punctuation-bracket">]</span>
+<span class="variable">getNumbers</span> <span class="variable">fileName</span> <span class="operator">=</span> <span class="keyword">do</span>
+  <span class="variable">content</span> <span class="operator">&lt;-</span> <span class="variable">readFile</span> <span class="variable">fileName</span>
+  <span class="function"><span class="variable">return</span></span> <span class="operator">$</span> <span class="variable">lines</span> <span class="variable">content</span>
+
+<span class="variable">main</span> <span class="operator">::</span> <span class="type">IO</span> <span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span>
+<span class="variable">main</span> <span class="operator">=</span> <span class="keyword">do</span>
+  <span class="variable">numbers</span> <span class="operator">&lt;-</span> <span class="variable">getNumbers</span> <span class="string">&quot;test_input.txt&quot;</span>
+  <span class="keyword">let</span> <span class="variable">len</span> <span class="operator">=</span> <span class="variable">length</span> <span class="variable">numbers</span>
+      <span class="variable">digits</span> <span class="operator">=</span> <span class="variable">getDigits</span> <span class="variable">numbers</span>
+      <span class="variable">gamma</span> <span class="operator">=</span> <span class="variable">getGamma</span> <span class="variable">len</span> <span class="variable">digits</span>
+      <span class="variable">epsilon</span> <span class="operator">=</span> <span class="variable">xor</span> <span class="variable">gamma</span> <span class="operator">$</span> <span class="variable">shiftL</span> <span class="number">1</span> <span class="punctuation-bracket">(</span><span class="variable">length</span> <span class="punctuation-bracket">(</span><span class="variable">head</span> <span class="variable">numbers</span><span class="punctuation-bracket">)</span><span class="punctuation-bracket">)</span> <span class="operator">-</span> <span class="number">1</span>
+   <span class="keyword">in</span> <span class="function"><span class="variable">print</span></span> <span class="operator">$</span> <span class="function"><span class="variable">gamma</span></span> <span class="operator">*</span> <span class="function"><span class="variable">epsilon</span></span>
 </code></pre>
 
     <script src="../theme-switch.js"></script>

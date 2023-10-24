@@ -1,9 +1,58 @@
+body[data-theme="default"],
+body[data-theme="dark"] {
+    --vscFront: #D4D4D4;
+    --vscBack: #1E1E1E;
+    --vscGray: #808080;
+    --vscViolet: #646695;
+    --vscBlue: #569CD6;
+    --vscAccentBlue: #4FC1FE;
+    --vscDarkBlue: #223E55;
+    --vscMediumBlue: #18a2fe;
+    --vscLightBlue: #9CDCFE;
+    --vscGreen: #6A9955;
+    --vscBlueGreen: #4EC9B0;
+    --vscLightGreen: #B5CEA8;
+    --vscRed: #F44747;
+    --vscOrange: #CE9178;
+    --vscLightRed: #D16969;
+    --vscYellowOrange: #D7BA7D;
+    --vscYellow: #DCDCAA;
+    --vscDarkYellow: #FFD602;
+    --vscPink: #C586C0;
+
+    --vscBlueOrYellowOrange: var(--vscBlue);
+    --vscOrangeOrYellowOrange: var(--vscOrange);
+    --vscBlueOrViolet: var(--vscBlue);
+}
+
+body[data-theme="light"] {
+    --vscFront: #343434;
+    --vscBack: #FFFFFF;
+    --vscGray: #000000;
+    --vscViolet: #000080;
+    --vscBlue: #0000FF;
+    --vscDarkBlue: #007ACC;
+    --vscLightBlue: #0451A5;
+    --vscGreen: #008000;
+    --vscBlueGreen: #16825D;
+    --vscLightGreen: #098658;
+    --vscRed: #FF0000;
+    --vscOrange: #C72E0F;
+    --vscLightRed: #A31515;
+    --vscYellowOrange: #800000;
+    --vscYellow: #795E26;
+    --vscPink: #AF00DB;
+
+    --vscBlueOrYellowOrange: var(--vscYellowOrange);
+    --vscOrangeOrYellowOrange: var(--vscYellowOrange);
+    --vscBlueOrViolet: var(--vscViolet);
+}
+
 pre {
     width: -moz-fit-content;
     width: fit-content;
     max-width: 100%;
     overflow-x: auto;
-    line-height: 0.75;
     padding: 1.5rem;
     border-radius: 1rem;
     background-color: var(--secondary-bg);
@@ -29,7 +78,7 @@ pre::-webkit-scrollbar-thumb {
 code {
     margin: 0;
     font-family: "Iosevka Web";
-    color: var(--fg-colour-bold);
+    color: var(--vscLightBlue);
 }
 
 img {
@@ -39,8 +88,8 @@ img {
 table {
     border-collapse: collapse;
     box-shadow: 0 0 5px var(--box-shadow);
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
     overflow: hidden; /* Solves Firefox rendering issue */
 }
 
@@ -52,10 +101,11 @@ th {
 }
 
 th:first-child {
-    border-top-left-radius: 0.5rem;
+    border-top-left-radius: 0.25rem;
 }
+
 th:last-child {
-    border-top-right-radius: 0.5rem;
+    border-top-right-radius: 0.25rem;
 }
 
 td {
@@ -65,110 +115,74 @@ td {
 tr:nth-child(odd) {
     background-color: var(--secondary-bg);
 }
+
 tr:nth-child(even) {
     background-color: var(--tertiary-bg);
 }
 
-.attribute {
-    color: #e5c07b;
-}
-.comment {
-    color: #5c6370;
-    font-style: italic;
-}
-.constant {
-    color: #56b6c2;
-}
-.constant-numeric {
-    color: #d19a66;
-}
-.constant-builtin {
-    color: #d19a66;
-}
-.constant-character-escape {
-    color: #d19a66;
-}
-.constructor {
-    color: #40afff;
-}
-.function {
-    color: #40afff;
-}
-.function-builtin {
-    color: #40afff;
-}
-.function-macro {
-    color: #c678dd;
-}
-.keyword {
-    color: #e06c75;
-}
-.keyword-control {
-    color: #c678dd;
-}
-.keyword-control-import {
-    color: #e06c75;
-}
-.keyword-directive {
-    color: #c678dd;
-}
-.label {
-    color: #c678dd;
-}
-.namespace {
-    color: #40afff;
-}
-.operator {
-    color: #c678dd;
-}
-.keyword-operator {
-    color: #c678dd;
-}
-.special {
-    color: #40afff;
-}
-.string {
-    color: #98c379;
-}
-.type {
-    color: #e5c07b;
-}
-.variable {
-}
-.variable-builtin {
-    color: #40afff;
-}
-.variable-parameter {
-    color: #e06c75;
-}
-.variable-other-member {
-    color: #e06c75;
-}
+.error { color: var(--vscRed) }
+.punctuation-bracket { color: var(--vscFront) }
+.punctuation-special { color: var(--vscFront) }
+.comment { color: var(--vscGreen); font-style: italic }
+.constant { color: var(--vscAccentBlue) }
+.constant-builtin { color: var(--vscBlue) }
+.constant-macro { color: var(--vscBlueGreen) }
+.string-regex { color: var(--vscOrange) }
+.string { color: var(--vscOrange) }
+.character { color: var(--vscOrange) }
+.number { color: var(--vscLightGreen) }
+.boolean { color: var(--vscBlue) }
+.float { color: var(--vscLightGreen) }
+.annotation { color: var(--vscYellow) }
+.attribute { color: var(--vscYellow) }
+.attribute-builtin { color: var(--vscBlueGreen) }
+.namespace { color: var(--vscBlueGreen) }
+.function-builtin { color: var(--vscYellow) }
+.function { color: var(--vscYellow) }
+.function-macro { color: var(--vscYellow) }
+.parameter { color: var(--vscLightBlue) }
+.parameter-reference { color: var(--vscLightBlue) }
+.method { color: var(--vscYellow) }
+.field { color: var(--vscLightBlue) }
+.property { color: var(--vscLightBlue) }
+.constructor { color: var(--vscBlueGreen) }
+.conditional { color: var(--vscPink) }
+.repeat { color: var(--vscPink) }
+.label { color: var(--vscLightBlue) }
+.keyword { color: var(--vscPink) }
+.keyword-function { color: var(--vscBlue) }
+.keyword-operator { color: var(--vscBlue) }
+.operator { color: var(--vscFront) }
+.exception { color: var(--vscPink) }
+.type { color: var(--vscBlueGreen) }
+.type-builtin { color: var(--vscBlue) }
+.type-qualifier { color: var(--vscBlue) }
+.storageClass { color: var(--vscBlue) }
+.structure { color: var(--vscLightBlue) }
+.include { color: var(--vscPink) }
+.variable { color: var(--vscLightBlue) }
+.variable-builtin { color: var(--vscLightBlue) }
+.text { color: var(--vscFront) }
+.text-underline { color: var(--vscYellowOrange) }
+.tag { color: var(--vscBlue) }
+.tag-delimiter { color: var(--vscGray) }
+.tag-attribute { color: var(--vscLightBlue) }
 
-.markup-heading {
-    color: #e06c75;
-}
-.markup-raw-inline {
-    color: #98c379;
-}
-.markup-bold {
-    color: #d19a66;
-    font-weight: bold;
-}
-.markup-italic {
-    color: #c678dd;
-    font-style: bold;
-}
-.markup-list {
-    color: #e06c75;
-}
-.markup-quote {
-    color: #e5c07b;
-}
-.markup-link-url {
-    color: #56b6c2;
-    text-decoration: underline;
-}
-.markup-link-text {
-    color: #c678dd;
-}
+.text-title { color: var(--vscBlueOrYellowOrange); font-weight: bold }
+.text-literal { color: var(--vscFront) }
+.text-literal-markdown { color: var(--vscOrange) }
+.text-literal-markdown_inline { color: var(--vscOrange) }
+.text-emphasis { color: var(--vscFront); font-style: italic }
+.text-strike { color: var(--vscFront); text-decoration: strikethrough }
+.text-strong { color: var(--vscBlueOrViolet); font-weight: bold }
+.text-uri { color: var(--vscFront) }
+.textReference { color: var(--vscOrangeOrYellowOrange) }
+.punctuation-delimiter { color: var(--vscFront) }
+.stringEscape { color: var(--vscOrangeOrYellowOrange); font-weight: bold }
+
+.text-note { color: var(--vscBlueGreen); font-weight: bold }
+.text-warning { color: var(--vscYellowOrange); font-weight: bold }
+.text-danger { color: var(--vscRed); font-weight: bold }
+
+.text-diff-add { background: #4B5632 }
+.text-diff-delete { background: #6F1313 }
