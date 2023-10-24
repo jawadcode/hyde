@@ -44,7 +44,7 @@ enum AppError {
 
     #[snafu(display("Failed to build project at '{}': {source}", path.display()))]
     Build {
-        source: build::BuildError,
+        source: Box<build::BuildError>,
         path: PathBuf,
     },
 
@@ -77,9 +77,10 @@ fn run() -> AppRes {
                 path: dir,
             }
         }),
-        Command::Build => {
-            build::build_proj(&dir).map_err(|source| AppError::Build { source, path: dir })
-        }
+        Command::Build => build::build_proj(&dir).map_err(|source| AppError::Build {
+            source: Box::new(source),
+            path: dir,
+        }),
         Command::Serve => todo!(),
     }
 }

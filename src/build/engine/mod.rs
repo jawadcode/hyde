@@ -2,7 +2,7 @@ mod load_templates;
 mod render_index;
 
 use chrono::DateTime;
-use upon::Engine as Enjin;
+use upon::{Engine as Enjin, TemplateRef};
 
 /// A wrapper around [`upon::Engine`] that exists purely for convenience methods
 pub struct Engine<'en> {
@@ -29,6 +29,12 @@ impl Default for Engine<'_> {
         }
         engine.add_filter("fmt_timestamp", fmt_timestamp);
         Self { engine }
+    }
+}
+
+impl Engine<'_> {
+    pub fn get_post(&self) -> TemplateRef {
+        self.engine.get_template("post").unwrap()
     }
 }
 

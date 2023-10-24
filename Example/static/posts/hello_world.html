@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/post.css">
+    <title>Example :: Hello World</title>
+  </head>
+  <body lang="en-GB" data-theme="default">
+    <header class="blog-header">
+  <h2 class="blog-name">Example</h2>
+  <div class="theme-switch" onclick="toggle_theme()"></div>
+</header>
+    <h1 class="post-header">Hello World</h1>
+    <h5 class="post-timestamp">
+      <time datetime="2023-10-24T02:44:07.740916Z">02:44 Tuesday 24 October 2023</time>
+    </h5>
+    <h1>A Relevant Table</h1>
+<table><thead><tr><th style="text-align: center">Hello</th><th style="text-align: center">World</th></tr></thead><tbody>
+<tr><td style="text-align: center">12323</td><td style="text-align: center">43242</td></tr>
+<tr><td style="text-align: center">57439</td><td style="text-align: center">57438</td></tr>
+</tbody></table>
+<h1>Some Code</h1>
+<pre><code class="language-rs"><span class="comment">/// Highlight the contents of a fenced code block of a given source language as HTML</span>
+
+<span class="keyword">pub</span> <span class="keyword">fn</span> highlight&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt;(<span class="variable-parameter">lang</span>: <span class="type">CowStr</span>&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt;, <span class="variable-parameter">code</span>: <span class="type">CowStr</span>&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt;) -&gt; <span class="type">CowStr</span>&lt;<span class="operator">&#39;</span><span class="label">src</span>&gt; {
+
+    <span class="keyword">let</span> lang: <span class="type">Language</span> = <span class="keyword">if</span> <span class="keyword">let</span> <span class="constructor">Ok</span>(lang) = lang.<span class="function">parse</span>() {
+
+        lang
+
+    } <span class="keyword">else</span> {
+
+        <span class="keyword">return</span> code;
+
+    };
+
+    <span class="keyword">let</span> config = lang.<span class="function">get_config</span>();
+
+
+    <span class="keyword">let</span> <span class="keyword">mut</span> highlighter = <span class="type">Highlighter</span>::<span class="function">new</span>();
+
+    <span class="keyword">let</span> highlights = highlighter
+
+        .<span class="function">highlight</span>(config, code.<span class="function">as_bytes</span>(), <span class="constructor">None</span>, |_| <span class="constructor">None</span>)
+
+        .<span class="function">unwrap</span>();
+
+
+    <span class="keyword">let</span> <span class="keyword">mut</span> renderer = <span class="type">HtmlRenderer</span>::<span class="function">new</span>();
+
+    renderer
+
+        .render(highlights, code.<span class="function">as_bytes</span>(), <span class="operator">&amp;</span>|highlight| {
+
+            <span class="constructor">HTML_ATTRS</span>[highlight.<span class="constant-builtin">0</span>].<span class="function">as_bytes</span>()
+
+        })
+
+        .<span class="function">unwrap</span>();
+
+
+    <span class="type">CowStr</span>::<span class="function">from</span>(<span class="type">String</span>::<span class="function">from_utf8</span>(renderer.html).<span class="function">unwrap</span>())
+
+}
+
+</code></pre>
+
+    <script src="../theme-switch.js"></script>
+  </body>
+</html>

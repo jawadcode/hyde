@@ -1,7 +1,6 @@
 //! Building a Hyde project
 
 mod engine;
-mod index;
 mod posts;
 
 use std::{
@@ -42,9 +41,23 @@ pub enum BuildError {
     #[snafu(display("Couldn't find 'templates/post.html' in the theme directory: '{}'", path.display()))]
     PostTemplate { path: PathBuf },
 
-    /// Failed to compile the markdown posts in the `posts/` directory
-    #[snafu(display("Failed to compile posts: '{}': {source}", path.display()))]
-    CompilePosts { source: io::Error, path: PathBuf },
+    /// Missing the frontmatter of a post
+    #[snafu(display("Missing the frontmatter of the post at '{}'", path.display()))]
+    MissingFrontmatter { path: PathBuf },
+
+    /// Failed to render post
+    #[snafu(display("Failed to render post '{}': {source}", path.display()))]
+    RenderPost {
+        source: Box<upon::Error>,
+        path: PathBuf,
+    },
+
+    /// Failed to parse the frontmatter of a post
+    #[snafu(display("Failed to parse the post at '{}': {source}", path.display()))]
+    ParseFrontmatter {
+        source: serde_yaml::Error,
+        path: PathBuf,
+    },
 
     /// A miscellaneous I/O error
     #[snafu(display("IO error at '{}': {source}", path.display()))]
@@ -100,10 +113,13 @@ pub fn build_proj(dir: impl AsRef<Path>) -> BuildRes {
     copy_entries(&config.theme, &static_dir, &[OsStr::new("templates")])?;
 
     /* Compile all posts in `posts/` into `static/` */
-    compile_posts(&config, dir)
-        .map_err(|(source, path)| BuildError::CompilePosts { source, path })?;
+    compile_posts(&config, &engine, dir)?;
 
-    todo!()
+    println!(
+        "\x1b[32;1mSuccess\x1b[0m: Generated static site for project '{}'",
+        config.name
+    );
+    Ok(())
 }
 
 /// Compares two directories and cleans entries in the former that aren't present in the latter,
@@ -125,20 +141,7 @@ fn compare_and_clean(
 
     let dir = dir.as_ref();
     // Iterate over the entries in `dir` filtering out those present in `exclude`
-    for entry in fs::read_dir(dir)
-        .map_err(|err| (err, dir.to_path_buf()))?
-        .filter_map(|entry| {
-            entry
-                .map(|entry| {
-                    if exclude.contains(&entry.path().as_os_str()) {
-                        None
-                    } else {
-                        Some(entry)
-                    }
-                })
-                .unwrap_or(None) // Just discard `Err`oneous entries, they're not worth handling
-        })
-    {
+    for entry in read_dir(dir, exclude)? {
         let against_path = against.as_ref().join(entry.file_name());
         let entry_path = entry.path();
         let file_type = entry.file_type().map_err(|err| (err, entry_path.clone()))?;
@@ -160,7 +163,7 @@ fn compare_and_clean(
             compare_and_clean(dir.join(entry.file_name()), against_path, &[])?;
         }
     }
-    todo!()
+    Ok(())
 }
 
 /// Copies all entries from one directory to another, excluding certain entries.
@@ -187,8 +190,10 @@ fn copy_entries(
         let entry_dest = dest.join(entry.file_name());
         // If the corresponding entry in `dest` already exists, we only overwrite it if it is older
         if entry_dest.exists() {
-            let dest_metadata = dest.metadata().map_err(|err| (err, entry_dest.clone()))?;
-            // Idk about the error case, if your platform doesn't have a last write timestamp then
+            let dest_metadata = entry_dest
+                .metadata()
+                .map_err(|err| (err, entry_dest.clone()))?;
+            // Idc about the error case, if your platform doesn't have a last write timestamp then
             // it's pretty much a skill issue.
             if entry_metadata.modified().unwrap() > dest_metadata.modified().unwrap() {
                 copy_entry(entry, entry_metadata, entry_dest)?;
@@ -196,20 +201,30 @@ fn copy_entries(
         }
         // It doesn't exist so we can just copy to it
         else {
-            copy_entry(entry, entry_metadata, dest)?;
+            copy_entry(entry, entry_metadata, entry_dest)?;
         }
     }
-    todo!()
+    Ok(())
 }
 
-// cheers Matt
+/// Reads entries from `dir`, except those contained in `exclude`.
+///
+/// This function wraps [`std::fs::read_dir`].
+///
+/// Cheers Matt
 fn read_dir<'a>(
     dir: &Path,
     exclude: &'a [&OsStr],
 ) -> Result<impl Iterator<Item = DirEntry> + 'a, (io::Error, PathBuf)> {
+    // Read the directory itself; on failure, return error _and_ directory that caused it.
     let dir_entries = fs::read_dir(dir).map_err(|err| (err, dir.to_path_buf()))?;
-    let entry_filter = |entry: &DirEntry| !exclude.contains(&entry.path().as_os_str());
-    Ok(dir_entries.filter_map(move |entry| entry.ok().filter(entry_filter)))
+    // We only want to return the entries that aren't in the `exclude` array.
+    let dir_filter =
+        |entry: &DirEntry| !exclude.contains(&entry.path().file_name().expect("Missing filename"));
+    // `Result` -> `Option` in filter_map => ignore `Err`. Use `dir_filter` to turn matching `Some` -> `None`.
+    let filtered = dir_entries.filter_map(move |entry| entry.ok().filter(dir_filter));
+
+    Ok(filtered)
 }
 
 fn copy_entry(

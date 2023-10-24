@@ -5,21 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/index.css">
-    <title>{{ name }} :: {{ description }}</title>
+    <title>Example :: An Example Blog</title>
   </head>
   <body data-theme="default">
-    {% include "header" %}
+    <header class="blog-header">
+  <h2 class="blog-name">Example</h2>
+  <div class="theme-switch" onclick="toggle_theme()"></div>
+</header>
     <h3 class="recent-posts-header">Most recent posts:</h3>
     <main class="recent-posts">
-      {% for post in recent_posts %}
-      <article class="recent-post" lang="{{ post.language }}">
-        <h3 class="recent-post-title"><a target="_blank" href="{{ post.url }}">{{ post.title }}</a></h3>
+      
+      <article class="recent-post" lang="en-GB">
+        <h3 class="recent-post-title"><a target="_blank" href=".\posts\hello_world.html">Hello World</a></h3>
         <h5 class="recent-post-timestamp">
-          <time datetime="{{ post.timestamp }}">{{ post.timestamp | fmt_timestamp: "%H:%M %a %e %b %C" }}</time>
+          <time datetime="2023-10-24T02:44:07.740916Z">02:44 Tue 24 Oct 20</time>
         </h5>
-        <p class="recent-post-summary">{{ post.summary | truncate: 384 }}</p>
+        <p class="recent-post-summary">A Relevant Table  | Hello | World | |:...</p>
       </article>
-      {% endfor %}
+      
     </main>
     <script src="./theme-switch.js"></script>
   </body>
