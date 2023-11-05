@@ -1,8 +1,9 @@
+mod highlight;
+mod latex;
+
 use pulldown_cmark::{html, CodeBlockKind, CowStr, Event, Options, Parser, Tag};
 
 use self::highlight::highlight;
-
-mod highlight;
 
 /// Compile the markdown content of a post into HTML
 pub(super) fn compile_content(content_markdown: &str) -> String {
