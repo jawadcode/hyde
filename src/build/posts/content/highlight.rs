@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use pulldown_cmark::CowStr;
 use tree_sitter_highlight::{HighlightConfiguration, Highlighter, HtmlRenderer};
 
@@ -140,74 +140,72 @@ const HTML_ATTRS: &[&str] = &[
     r#"class="text-diff-delete""#,
 ];
 
-lazy_static! {
-    static ref C_CONFIG: HighlightConfiguration = {
-        let mut config = HighlightConfiguration::new(
-            tree_sitter_c::language(),
-            tree_sitter_c::HIGHLIGHT_QUERY,
-            "",
-            "",
-        )
-        .unwrap();
-        config.configure(HIGHLIGHT_NAMES);
-        config
-    };
-    static ref CPP_CONFIG: HighlightConfiguration = {
-        let mut config = HighlightConfiguration::new(
-            tree_sitter_cpp::language(),
-            tree_sitter_cpp::HIGHLIGHT_QUERY,
-            "",
-            "",
-        )
-        .unwrap();
-        config.configure(HIGHLIGHT_NAMES);
-        config
-    };
-    static ref HASKELL_CONFIG: HighlightConfiguration = {
-        let mut config = HighlightConfiguration::new(
-            npezza93_tree_sitter_haskell::language(),
-            npezza93_tree_sitter_haskell::HIGHLIGHTS_QUERY,
-            "",
-            "",
-        )
-        .unwrap();
-        config.configure(HIGHLIGHT_NAMES);
-        config
-    };
-    static ref OCAML_CONFIG: HighlightConfiguration = {
-        let mut config = HighlightConfiguration::new(
-            tree_sitter_ocaml::language_ocaml(),
-            tree_sitter_ocaml::HIGHLIGHTS_QUERY,
-            "",
-            "",
-        )
-        .unwrap();
-        config.configure(HIGHLIGHT_NAMES);
-        config
-    };
-    static ref PYTHON_CONFIG: HighlightConfiguration = {
-        let mut config = HighlightConfiguration::new(
-            tree_sitter_python::language(),
-            tree_sitter_python::HIGHLIGHT_QUERY,
-            "",
-            "",
-        )
-        .unwrap();
-        config.configure(HIGHLIGHT_NAMES);
-        config
-    };
-    static ref RUST_CONFIG: HighlightConfiguration = {
-        let mut config = HighlightConfiguration::new(
-            tree_sitter_rust::language(),
-            tree_sitter_rust::HIGHLIGHT_QUERY,
-            "",
-            "",
-        )
-        .unwrap();
-        config.configure(HIGHLIGHT_NAMES);
-        config
-    };
-}
+static C_CONFIG: Lazy<HighlightConfiguration> = Lazy::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter_c::language(),
+        tree_sitter_c::HIGHLIGHT_QUERY,
+        "",
+        "",
+    )
+    .unwrap();
+    config.configure(HIGHLIGHT_NAMES);
+    config
+});
+static CPP_CONFIG: Lazy<HighlightConfiguration> = Lazy::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter_cpp::language(),
+        tree_sitter_cpp::HIGHLIGHT_QUERY,
+        "",
+        "",
+    )
+    .unwrap();
+    config.configure(HIGHLIGHT_NAMES);
+    config
+});
+static HASKELL_CONFIG: Lazy<HighlightConfiguration> = Lazy::new(|| {
+    let mut config = HighlightConfiguration::new(
+        npezza93_tree_sitter_haskell::language(),
+        npezza93_tree_sitter_haskell::HIGHLIGHTS_QUERY,
+        "",
+        "",
+    )
+    .unwrap();
+    config.configure(HIGHLIGHT_NAMES);
+    config
+});
+static OCAML_CONFIG: Lazy<HighlightConfiguration> = Lazy::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter_ocaml::language_ocaml(),
+        tree_sitter_ocaml::HIGHLIGHTS_QUERY,
+        "",
+        "",
+    )
+    .unwrap();
+    config.configure(HIGHLIGHT_NAMES);
+    config
+});
+static PYTHON_CONFIG: Lazy<HighlightConfiguration> = Lazy::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter_python::language(),
+        tree_sitter_python::HIGHLIGHT_QUERY,
+        "",
+        "",
+    )
+    .unwrap();
+    config.configure(HIGHLIGHT_NAMES);
+    config
+});
+static RUST_CONFIG: Lazy<HighlightConfiguration> = Lazy::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter_rust::language(),
+        tree_sitter_rust::HIGHLIGHT_QUERY,
+        "",
+        "",
+    )
+    .unwrap();
+    config.configure(HIGHLIGHT_NAMES);
+    config
+});
 
 /// Any language that Hyde recognises inside a fenced code block
 enum Language {

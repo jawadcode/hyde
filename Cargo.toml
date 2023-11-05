@@ -10,7 +10,8 @@ edition = "2021"
 chrono = { version = "0.4", features = [ "serde" ] }
 clap = { version = "4.4", features = [ "derive" ] }
 include_dir = "0.7"
-lazy_static = "1.4"
+katex = "0.4"
+once_cell = "1.18"
 pulldown-cmark = { version = "0.9", features = [ "simd" ] }
 serde = { version = "1.0", features = [ "derive" ] }
 serde_yaml = "0.9"
