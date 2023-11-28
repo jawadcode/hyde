@@ -18,6 +18,10 @@ pub enum CreateError {
     #[snafu(display("Failed to create project directory: {source}"))]
     ProjectDir { source: io::Error },
 
+    /// Failed to create posts directory
+    #[snafu(display("Failed to create posts directory: {source}"))]
+    PostsDir { source: io::Error },
+
     /// Failed to open config file
     #[snafu(display("Failed to open config file: {source}"))]
     OpenConfig { source: io::Error },
@@ -47,8 +51,10 @@ static DEFAULT_THEME: include_dir::Dir = include_dir!("$CARGO_MANIFEST_DIR/defau
 ///
 /// # Summary
 ///
-/// Includes creating and writing to the config (stored in `hyde.toml`),
-/// as well as extracting the embedded default theme into the project dir
+/// * Create the project directory
+/// * Create the `posts/` directory
+/// * Create the config file (`hyde.toml`)
+/// * Extract the embedded default theme into `default_theme/`
 pub fn new_project(
     dir: impl AsRef<Path>,
     name: &str,
@@ -57,10 +63,12 @@ pub fn new_project(
 ) -> CreateRes {
     let dir = dir.as_ref().join(name);
     fs::create_dir(&dir).context(ProjectDirSnafu)?;
+    fs::create_dir(dir.join("posts")).context(PostsDirSnafu)?;
 
     let config_path = dir.join("hyde.toml");
     let mut config = File::options()
         .write(true)
+        .create(true)
         .open(config_path.clone())
         .context(OpenConfigSnafu)?;
     write_config(&mut config, name, display_name, desc)
