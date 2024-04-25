@@ -54,6 +54,7 @@ pre {
     max-width: 100%;
     overflow-x: auto;
     padding: 1.5rem;
+    padding-bottom: 0.5rem;
     border-radius: 1rem;
     background-color: var(--secondary-bg);
     box-shadow: 0 0 5px var(--box-shadow);
